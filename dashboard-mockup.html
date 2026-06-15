@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIKE — הדמיית דשבורד</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #1e293b;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 28px;
+  padding: 32px 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Arial', sans-serif;
+}
+
+/* ─── Phone frame ─────────────────────────── */
+.phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+
+.phone-frame {
+  width: 393px;
+  background: #f8fafc;
+  border-radius: 52px;
+  box-shadow:
+    0 0 0 12px #0f172a,
+    0 0 0 14px #334155,
+    0 40px 120px rgba(0,0,0,0.7);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.phone-notch {
+  background: #0f172a;
+  height: 46px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 10px;
+}
+.dynamic-island {
+  width: 118px;
+  height: 34px;
+  background: #0f172a;
+  border-radius: 20px;
+  border: 1.5px solid #1e293b;
+}
+
+.screen {
+  height: 796px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #f8fafc;
+  scrollbar-width: none;
+}
+.screen::-webkit-scrollbar { display: none; }
+
+/* ─── App Header ──────────────────────────── */
+.app-header {
+  background: #1e3a8a;
+  padding: 10px 16px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.header-logo {
+  width: 40px; height: 40px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.header-titles { text-align: right; }
+.header-titles .t1 { color: #fff; font-size: 17px; font-weight: 800; }
+.header-titles .t2 { color: #93c5fd; font-size: 11px; margin-top: 1px; }
+.header-bell { font-size: 20px; cursor: pointer; }
+
+/* ─── Stats ───────────────────────────────── */
+.stats-section { padding: 12px 12px 0; }
+.stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+
+.stat-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px 6px;
+  text-align: center;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: transform .15s;
+}
+.stat-card:active { transform: scale(.95); }
+.stat-card .n { font-size: 26px; font-weight: 900; line-height: 1; }
+.stat-card .l { font-size: 10px; margin-top: 4px; font-weight: 600; }
+
+.s-active  { border-color: #bfdbfe; }
+.s-active .n  { color: #1e3a8a; } .s-active .l  { color: #3b82f6; }
+.s-faulty  { border-color: #fecaca; }
+.s-faulty .n  { color: #dc2626; } .s-faulty .l  { color: #ef4444; }
+.s-loans   { border-color: #fed7aa; }
+.s-loans .n   { color: #c2410c; } .s-loans .l   { color: #f97316; }
+
+/* ─── Section header ──────────────────────── */
+.sec-hdr {
+  padding: 10px 16px 2px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sec-hdr .lbl { font-size: 10px; color: #94a3b8; font-weight: 700; letter-spacing: .4px; }
+.sec-hdr .hint { font-size: 9px; color: #cbd5e1; }
+
+/* ─── Cards grid ──────────────────────────── */
+.cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 4px 12px 80px;
+}
+
+.dash-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 14px;
+  border: 1.5px solid #f1f5f9;
+  cursor: grab;
+  user-select: none;
+  transition: box-shadow .15s, opacity .15s, border-color .15s;
+  min-height: 114px;
+  position: relative;
+}
+.dash-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.09); }
+.dash-card.dragging { opacity: .3; }
+.dash-card.drag-over { border-color: #1e3a8a; background: #eff6ff; box-shadow: 0 0 0 3px #bfdbfe; }
+.dash-card.full-width { grid-column: span 2; }
+
+.card-top { display: flex; align-items: flex-start; justify-content: space-between; }
+.card-icon { font-size: 26px; }
+.expand-btn {
+  font-size: 10px; color: #cbd5e1;
+  border: 1px solid #f1f5f9; background: #f8fafc;
+  border-radius: 6px; padding: 2px 5px; cursor: pointer;
+  transition: all .15s;
+}
+.expand-btn:hover { color: #1e3a8a; border-color: #1e3a8a; }
+
+.card-title { font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 7px; }
+.card-sub   { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+.card-body  { margin-top: 10px; }
+
+/* ─── Mini previews ───────────────────────── */
+.chip-row { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+.chip {
+  font-size: 9px; font-weight: 700;
+  padding: 2px 8px; border-radius: 99px;
+  white-space: nowrap;
+}
+
+.mini-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 5px 0; border-bottom: 1px solid #f8fafc;
+}
+.mini-row:last-child { border-bottom: none; }
+.mini-lbl { font-size: 11px; font-weight: 700; color: #374151; }
+.mini-sub { font-size: 9px; color: #94a3b8; margin-top: 1px; }
+.mini-badge { font-size: 9px; padding: 2px 7px; border-radius: 99px; font-weight: 700; }
+
+.mini-ev {
+  display: flex; align-items: center; gap: 7px;
+  padding: 5px 0; border-bottom: 1px solid #f8fafc;
+}
+.mini-ev:last-child { border-bottom: none; }
+.mini-ev-icon { font-size: 14px; flex-shrink: 0; }
+.mini-ev-t { font-size: 10px; font-weight: 700; color: #374151; text-align: right; }
+.mini-ev-d { font-size: 9px; color: #94a3b8; text-align: right; }
+
+.mini-set {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 0; border-bottom: 1px solid #f8fafc;
+}
+.mini-set:last-child { border-bottom: none; }
+.mini-set-lbl { font-size: 11px; color: #374151; font-weight: 600; }
+.mini-set-arr { font-size: 11px; color: #cbd5e1; }
+
+.soon { text-align: center; padding: 14px 0 6px; }
+.soon-icon { font-size: 26px; }
+.soon-txt { font-size: 11px; color: #94a3b8; margin-top: 6px; font-weight: 600; }
+
+/* ─── Controls panel ──────────────────────── */
+.controls {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 16px;
+  padding: 18px;
+  width: 240px;
+  flex-shrink: 0;
+  align-self: flex-start;
+  position: sticky;
+  top: 32px;
+}
+.ctrl-title { font-size: 11px; font-weight: 700; color: #94a3b8; letter-spacing: .5px; margin-bottom: 14px; text-align: right; }
+
+.ctrl-section { margin-bottom: 16px; }
+.ctrl-section-lbl { font-size: 10px; color: #475569; font-weight: 700; margin-bottom: 8px; text-align: right; }
+
+.btn-row { display: flex; flex-direction: column; gap: 6px; }
+.ctrl-btn {
+  font-size: 12px; padding: 8px 12px;
+  border-radius: 10px;
+  border: 1.5px solid #334155;
+  background: #0f172a;
+  cursor: pointer; color: #94a3b8;
+  font-family: inherit; text-align: right;
+  transition: all .15s;
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%;
+}
+.ctrl-btn:hover { border-color: #3b82f6; color: #93c5fd; }
+.ctrl-btn .btn-icon { font-size: 14px; }
+
+.order-box {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 10px;
+  color: #475569;
+  text-align: right;
+  line-height: 1.7;
+}
+.order-item { display: flex; align-items: center; justify-content: space-between; padding: 1px 0; }
+.order-item.fw { color: #93c5fd; }
+
+.hint-box {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-top: 12px;
+}
+.hint-item { font-size: 10px; color: #475569; padding: 3px 0; display: flex; align-items: center; gap: 6px; }
+.hint-item span { color: #64748b; }
+
+/* ─── Bottom Tab Bar ───────────────────────── */
+.tab-bar {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  border-top: 1.5px solid #f1f5f9;
+  display: flex;
+  direction: ltr;
+  box-shadow: 0 -3px 12px rgba(0,0,0,.07);
+  z-index: 100;
+}
+.tab-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 9px 0 6px; cursor: pointer;
+  position: relative;
+  transition: color .15s;
+}
+.tab-icon { font-size: 20px; line-height: 1; }
+.tab-label { font-size: 10px; margin-top: 3px; font-weight: 500; color: #94a3b8; }
+.tab-item.active .tab-label { color: #1e3a8a; font-weight: 700; }
+.tab-item.active::before {
+  content: '';
+  position: absolute; top: 0; left: 20%; right: 20%;
+  height: 3px; background: #1e3a8a; border-radius: 99px;
+}
+.tab-center { border-left: 1px solid #f8fafc; border-right: 1px solid #f8fafc; }
+</style>
+</head>
+<body>
+
+<!-- ─── Phone ─────────────────────────────── -->
+<div class="phone-wrap">
+  <div class="phone-frame">
+    <div class="phone-notch"><div class="dynamic-island"></div></div>
+    <div class="screen">
+
+      <!-- Header -->
+      <div class="app-header">
+        <span class="header-bell">🔔</span>
+        <div class="header-titles">
+          <div class="t1">מחסן אופניים</div>
+          <div class="t2">איחוד הצלה ישראל</div>
+        </div>
+        <div class="header-logo">🚲</div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-section">
+        <div class="stats-row">
+          <div class="stat-card s-active"><div class="n">24</div><div class="l">במלאי פעיל</div></div>
+          <div class="stat-card s-faulty"><div class="n">3</div><div class="l">תקולים</div></div>
+          <div class="stat-card s-loans"><div class="n">5</div><div class="l">בהשאלה</div></div>
+        </div>
+      </div>
+
+      <!-- Section label -->
+      <div class="sec-hdr">
+        <span class="hint">גרור • לחץ ⇔ להרחבה</span>
+        <span class="lbl">ניווט מהיר</span>
+      </div>
+
+      <!-- Draggable cards -->
+      <div class="cards-grid" id="grid">
+
+        <!-- כלים -->
+        <div class="dash-card" id="c-bikes" draggable="true" data-id="bikes">
+          <div class="card-top">
+            <button class="expand-btn" onclick="toggleFull('c-bikes')">⇔</button>
+            <span class="card-icon">🚲</span>
+          </div>
+          <div class="card-title">כלים</div>
+          <div class="card-sub">24 פריטים פעילים</div>
+          <div class="card-body">
+            <div class="chip-row">
+              <span class="chip" style="background:#dbeafe;color:#1e3a8a">חדש 8</span>
+              <span class="chip" style="background:#fef9c3;color:#92400e">חזר 6</span>
+              <span class="chip" style="background:#dcfce7;color:#15803d">מכירה 5</span>
+              <span class="chip" style="background:#f1f5f9;color:#475569">נמכר 5</span>
+            </div>
+            <div class="mini-row">
+              <span class="mini-badge" style="background:#fee2e2;color:#dc2626">תקול</span>
+              <div><div class="mini-lbl">#007 · קלנועית</div></div>
+            </div>
+            <div class="mini-row">
+              <span class="mini-badge" style="background:#dcfce7;color:#15803d">תקין</span>
+              <div><div class="mini-lbl">#012 · ייס</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- חלפים -->
+        <div class="dash-card" id="c-parts" draggable="true" data-id="parts">
+          <div class="card-top">
+            <button class="expand-btn" onclick="toggleFull('c-parts')">⇔</button>
+            <span class="card-icon">🔧</span>
+          </div>
+          <div class="card-title">חלפים</div>
+          <div class="card-sub">ניהול חלקי חילוף</div>
+          <div class="card-body">
+            <div class="soon">
+              <div class="soon-icon">🔩</div>
+              <div class="soon-txt">בקרוב</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- היסטוריה -->
+        <div class="dash-card" id="c-history" draggable="true" data-id="history">
+          <div class="card-top">
+            <button class="expand-btn" onclick="toggleFull('c-history')">⇔</button>
+            <span class="card-icon">📋</span>
+          </div>
+          <div class="card-title">היסטוריה</div>
+          <div class="card-sub">תנועות אחרונות</div>
+          <div class="card-body">
+            <div class="mini-ev">
+              <div style="flex:1">
+                <div class="mini-ev-t">#007 · קליטה מרוכב</div>
+                <div class="mini-ev-d">היום 14:32</div>
+              </div>
+              <span class="mini-ev-icon">📥</span>
+            </div>
+            <div class="mini-ev">
+              <div style="flex:1">
+                <div class="mini-ev-t">#012 · נמכר · ₪1,200</div>
+                <div class="mini-ev-d">אתמול 09:15</div>
+              </div>
+              <span class="mini-ev-icon">💰</span>
+            </div>
+            <div class="mini-ev">
+              <div style="flex:1">
+                <div class="mini-ev-t">#003 · השאלה</div>
+                <div class="mini-ev-d">13.6 11:00</div>
+              </div>
+              <span class="mini-ev-icon">🤝</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- הגדרות -->
+        <div class="dash-card" id="c-settings" draggable="true" data-id="settings">
+          <div class="card-top">
+            <button class="expand-btn" onclick="toggleFull('c-settings')">⇔</button>
+            <span class="card-icon">⚙️</span>
+          </div>
+          <div class="card-title">הגדרות</div>
+          <div class="card-sub">ניהול מתקדם</div>
+          <div class="card-body">
+            <div class="mini-set">
+              <span class="mini-set-arr">›</span>
+              <span class="mini-set-lbl">ניהול כלים מתקדם</span>
+            </div>
+            <div class="mini-set">
+              <span class="mini-set-arr">›</span>
+              <span class="mini-set-lbl">הגדרת חתימה</span>
+            </div>
+            <div class="mini-set">
+              <span class="mini-set-arr">›</span>
+              <span class="mini-set-lbl">ביומטרי / סיסמה</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /grid -->
+
+      <!-- Bottom Tab Bar -->
+      <div class="tab-bar" id="tabBar">
+        <div class="tab-item" id="tab-inventory" onclick="setActiveTab('inventory')">
+          <span class="tab-icon">📦</span>
+          <span class="tab-label">מלאי</span>
+        </div>
+        <div class="tab-item tab-center" id="tab-dashboard" onclick="setActiveTab('dashboard')">
+          <span class="tab-icon">🏠</span>
+          <span class="tab-label">דשבורד</span>
+        </div>
+        <div class="tab-item" id="tab-bikes" onclick="setActiveTab('bikes')">
+          <span class="tab-icon">🚲</span>
+          <span class="tab-label">כלים</span>
+        </div>
+      </div>
+
+    </div><!-- /screen -->
+  </div><!-- /phone-frame -->
+
+  <div style="color:#475569; font-size:11px; text-align:center; margin-top:4px;">
+    גרור להזזה · לחץ ⇔ להרחבה/צמצום · לחץ פעמיים לאיפוס כרטיס
+  </div>
+</div>
+
+<!-- ─── Controls panel ─────────────────────── -->
+<div class="controls">
+  <div class="ctrl-title">⚙ שליטה בפריסה</div>
+
+  <div class="ctrl-section">
+    <div class="ctrl-section-lbl">פריסות מוכנות</div>
+    <div class="btn-row">
+      <button class="ctrl-btn" onclick="layout2col()"><span class="btn-icon">▦</span> רשת 2×2</button>
+      <button class="ctrl-btn" onclick="layout1col()"><span class="btn-icon">☰</span> עמודה אחת</button>
+      <button class="ctrl-btn" onclick="layoutBikesFull()"><span class="btn-icon">🚲</span> כלים — רוחב מלא</button>
+      <button class="ctrl-btn" onclick="layoutHistoryFull()"><span class="btn-icon">📋</span> היסטוריה — רוחב מלא</button>
+      <button class="ctrl-btn" onclick="layoutReset()" style="border-color:#dc2626;color:#f87171"><span class="btn-icon">↺</span> איפוס מלא</button>
+    </div>
+  </div>
+
+  <div class="ctrl-section">
+    <div class="ctrl-section-lbl">סדר נוכחי</div>
+    <div class="order-box" id="orderBox">—</div>
+  </div>
+
+  <div class="hint-box">
+    <div class="hint-item">🖱 <span>גרור כרטיס → שחרר מעל כרטיס אחר</span></div>
+    <div class="hint-item">⇔ <span>לחץ לרוחב מלא / חצי</span></div>
+    <div class="hint-item">↺ <span>לחץ פעמיים על כרטיס לאיפוסו</span></div>
+  </div>
+</div>
+
+<script>
+const grid = document.getElementById('grid')
+let dragCard = null
+
+const NAMES = { bikes:'🚲 כלים', history:'📋 היסטוריה', parts:'🔧 חלפים', settings:'⚙️ הגדרות' }
+
+/* ── Drag ────────────────────────────────── */
+function initCards() {
+  grid.querySelectorAll('.dash-card').forEach(card => {
+    card.addEventListener('dragstart', e => {
+      dragCard = card
+      setTimeout(() => card.classList.add('dragging'), 0)
+      e.dataTransfer.effectAllowed = 'move'
+    })
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging')
+      grid.querySelectorAll('.dash-card').forEach(c => c.classList.remove('drag-over'))
+      updateOrder()
+    })
+    card.addEventListener('dragover', e => {
+      e.preventDefault()
+      if (card !== dragCard) card.classList.add('drag-over')
+    })
+    card.addEventListener('dragleave', () => card.classList.remove('drag-over'))
+    card.addEventListener('drop', e => {
+      e.preventDefault()
+      card.classList.remove('drag-over')
+      if (!dragCard || dragCard === card) return
+      const cards = [...grid.querySelectorAll('.dash-card')]
+      const si = cards.indexOf(dragCard), di = cards.indexOf(card)
+      if (si < di) grid.insertBefore(dragCard, card.nextSibling)
+      else         grid.insertBefore(dragCard, card)
+    })
+    card.addEventListener('dblclick', e => {
+      if (!e.target.classList.contains('expand-btn')) {
+        card.classList.remove('full-width')
+      }
+    })
+  })
+  updateOrder()
+}
+
+/* ── Width toggle ────────────────────────── */
+function toggleFull(id) {
+  document.getElementById(id).classList.toggle('full-width')
+  updateOrder()
+}
+
+/* ── Layouts ─────────────────────────────── */
+function layout2col() {
+  grid.querySelectorAll('.dash-card').forEach(c => c.classList.remove('full-width'))
+  updateOrder()
+}
+function layout1col() {
+  grid.querySelectorAll('.dash-card').forEach(c => c.classList.add('full-width'))
+  updateOrder()
+}
+function layoutBikesFull() {
+  grid.querySelectorAll('.dash-card').forEach(c => c.classList.remove('full-width'))
+  document.getElementById('c-bikes')?.classList.add('full-width')
+  updateOrder()
+}
+function layoutHistoryFull() {
+  grid.querySelectorAll('.dash-card').forEach(c => c.classList.remove('full-width'))
+  document.getElementById('c-history')?.classList.add('full-width')
+  updateOrder()
+}
+function layoutReset() {
+  ['c-bikes','c-parts','c-history','c-settings'].forEach(id => {
+    const c = document.getElementById(id)
+    if (c) { c.classList.remove('full-width'); grid.appendChild(c) }
+  })
+  updateOrder()
+}
+
+function setActiveTab(tab) {
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'))
+  const el = document.getElementById('tab-' + tab)
+  if (el) el.classList.add('active')
+}
+
+/* ── Order display ───────────────────────── */
+function updateOrder() {
+  const cards = [...grid.querySelectorAll('.dash-card')]
+  const box = document.getElementById('orderBox')
+  box.innerHTML = cards.map((c, i) => {
+    const fw = c.classList.contains('full-width')
+    return `<div class="order-item${fw?' fw':''}">
+      <span>${fw ? '↔' : '½'}</span>
+      <span>${i+1}. ${NAMES[c.dataset.id] || c.dataset.id}</span>
+    </div>`
+  }).join('')
+}
+
+initCards()
+setActiveTab('dashboard')
+</script>
+</body>
+</html>
