@@ -65,8 +65,8 @@ export default function BikeDetail({ route, navigation }: Props) {
 
   // Action visibility per category
   const showSendOut       = (bike.category === 'new' || bike.category === 'returned') && !isFaulty
-  const showFaultBtn      = isFaulty && (bike.category === 'new' || bike.category === 'returned')
-  const showTransferSale  = bike.category === 'returned'
+  const showFaultBtn      = isFaulty && (bike.category === 'new' || bike.category === 'returned' || bike.category === 'for_sale')
+  const showTransferSale  = bike.category === 'returned' && !isFaulty
   const canSell           = bike.category === 'for_sale'
   const canLoan           = bike.category === 'for_sale' && !activeLoan
 
@@ -88,15 +88,27 @@ export default function BikeDetail({ route, navigation }: Props) {
 
   type TimelineEvent =
     | { type: 'category'; date: string; data: CategoryChange }
-    | { type: 'return'; date: string; data: ReturnEvent }
+    | { type: 'intake'; date: string; re: ReturnEvent; fault?: FaultEvent }
     | { type: 'fault'; date: string; data: FaultEvent }
     | { type: 'sale'; date: string; data: Sale }
     | { type: 'loan'; date: string; data: Loan }
 
+  // Merge each return event with a fault event that happened at the same moment (within 2s)
+  const usedFaultIds = new Set<string>()
+  const intakeEvents = returnEvents.map(re => {
+    const paired = faultEvents.find(fe =>
+      !usedFaultIds.has(fe.id) &&
+      Math.abs(new Date(fe.created_at).getTime() - new Date(re.received_at).getTime()) < 2000
+    )
+    if (paired) usedFaultIds.add(paired.id)
+    return { type: 'intake' as const, date: re.received_at, re, fault: paired }
+  })
+
   const timeline: TimelineEvent[] = [
-    ...catChanges.map(d => ({ type: 'category' as const, date: d.changed_at, data: d })),
-    ...returnEvents.map(d => ({ type: 'return' as const, date: d.received_at, data: d })),
-    ...faultEvents.map(d => ({ type: 'fault' as const, date: d.created_at, data: d })),
+    // Skip initial category changes (no from_category — already shown in intake)
+    ...catChanges.filter(d => !!d.from_category).map(d => ({ type: 'category' as const, date: d.changed_at, data: d })),
+    ...intakeEvents,
+    ...faultEvents.filter(fe => !usedFaultIds.has(fe.id)).map(d => ({ type: 'fault' as const, date: d.created_at, data: d })),
     ...sales.map(d => ({ type: 'sale' as const, date: d.sold_at, data: d })),
     ...loans.map(d => ({ type: 'loan' as const, date: d.loaned_at, data: d })),
   ].sort((a, b) => b.date.localeCompare(a.date))
@@ -192,41 +204,63 @@ export default function BikeDetail({ route, navigation }: Props) {
             <View key={i} style={{ paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: i < timeline.length - 1 ? 1 : 0, borderBottomColor: '#f8fafc' }}>
               <View style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}>
                 <Text style={{ fontSize: 18 }}>
-                  {ev.type === 'category' ? '🔄' : ev.type === 'return' ? '📥' : ev.type === 'fault' ? '⚠️' : ev.type === 'sale' ? '💰' : '🤝'}
+                  {ev.type === 'category' ? '🔄' : ev.type === 'intake' ? '📥' : ev.type === 'fault' ? '⚠️' : ev.type === 'sale' ? '💰' : '🤝'}
                 </Text>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 11, color: '#94a3b8', marginBottom: 3, textAlign: 'right' }}>{formatDateTime(ev.date)}</Text>
 
                   {ev.type === 'category' && (
                     <Text style={{ fontSize: 13, color: '#374151', textAlign: 'right' }}>
-                      שינוי קטגוריה{ev.data.from_category ? ` מ-${CATEGORY_LABELS[ev.data.from_category]}` : ''} ← {CATEGORY_LABELS[ev.data.to_category]}
+                      {'העברה: '}{CATEGORY_LABELS[ev.data.from_category!]} {' ← '}{CATEGORY_LABELS[ev.data.to_category]}
                     </Text>
                   )}
 
-                  {ev.type === 'return' && (
-                    <View style={{ gap: 3 }}>
-                      <Text style={{ fontSize: 13, fontWeight: '600', color: '#374151', textAlign: 'right' }}>קליטה</Text>
-                      <Text style={{ fontSize: 11, color: '#6b7280', textAlign: 'right' }}>
-                        {[
-                          `סוללה ${ev.data.battery_returned ? '✓' : '✗'}`,
-                          `מטען ${ev.data.charger_returned ? '✓' : '✗'}`,
-                          `שרשרת ${ev.data.chain_returned ? '✓' : '✗'}`,
-                          `מנעול ${ev.data.lock_returned ? '✓' : '✗'}`,
-                          `מנעול כיסא ${ev.data.seat_lock_returned ? '✓' : '✗'}`,
-                        ].join(' · ')}
-                      </Text>
-                      <Text style={{ fontSize: 11, color: ev.data.all_keys_returned ? '#6b7280' : '#dc2626', textAlign: 'right' }}>
-                        {ev.data.all_keys_returned
-                          ? 'מפתחות: הכל הוחזר ✓'
-                          : `מפתחות חסרים: ${ev.data.missing_keys.map(k => MISSING_KEYS_OPTIONS.find(o => o.value === k)?.label ?? k).join(', ')}`}
-                      </Text>
-                      {ev.data.medical_equipment_returned && (
-                        <Text style={{ fontSize: 11, color: '#2563eb', textAlign: 'right' }}>
-                          ציוד רפואי הוחזר{ev.data.medical_equipment_description ? `: ${ev.data.medical_equipment_description}` : ''}
-                        </Text>
-                      )}
-                    </View>
-                  )}
+                  {ev.type === 'intake' && (() => {
+                    const re = ev.re
+                    const present = [
+                      re.battery_returned && 'סוללה',
+                      re.charger_returned && 'מטען',
+                      re.chain_returned && 'שרשרת',
+                      re.lock_returned && 'מנעול',
+                      re.seat_lock_returned && 'מנעול כיסא',
+                      re.all_keys_returned && 'כל המפתחות',
+                    ].filter(Boolean) as string[]
+                    const missing = [
+                      !re.battery_returned && 'סוללה',
+                      !re.charger_returned && 'מטען',
+                      !re.chain_returned && 'שרשרת',
+                      !re.lock_returned && 'מנעול',
+                      !re.seat_lock_returned && 'מנעול כיסא',
+                      ...(!re.all_keys_returned ? re.missing_keys.map(k => MISSING_KEYS_OPTIONS.find(o => o.value === k)?.label ?? k) : []),
+                    ].filter(Boolean) as string[]
+                    const fe = ev.fault
+                    const faults = fe ? [
+                      fe.brake_pads_front && 'רפידות קדמי', fe.brake_pads_rear && 'רפידות אחורי',
+                      fe.brake_discs_front && 'דיסקים קדמי', fe.brake_discs_rear && 'דיסקים אחורי',
+                      fe.brake_oil_front && 'שמן בלמים קדמי', fe.brake_oil_rear && 'שמן בלמים אחורי',
+                      fe.front_tire && 'צמיג קדמי', fe.rear_tire && 'צמיג אחורי',
+                      fe.front_puncture && "פנצ'ר קדמי", fe.rear_puncture && "פנצ'ר אחורי",
+                      fe.front_light && 'פנס קדמי', fe.rear_light && 'פנס אחורי',
+                      fe.motor_fault && 'מנוע', fe.controller_fault && 'בקר', fe.display_fault && 'צג',
+                    ].filter(Boolean) as string[] : []
+                    return (
+                      <View style={{ gap: 3 }}>
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: '#374151', textAlign: 'right' }}>קליטה — #{bike.org_number}</Text>
+                        {present.length > 0 && (
+                          <Text style={{ fontSize: 11, color: '#6b7280', textAlign: 'right' }}>כולל: {present.join(' · ')}</Text>
+                        )}
+                        {missing.length > 0 && (
+                          <Text style={{ fontSize: 11, color: '#dc2626', textAlign: 'right' }}>חסר: {missing.join(' · ')}</Text>
+                        )}
+                        {faults.length > 0 && (
+                          <Text style={{ fontSize: 11, color: '#dc2626', fontWeight: '600', textAlign: 'right' }}>תקול: {faults.join(' · ')}</Text>
+                        )}
+                        {re.medical_equipment_returned && (
+                          <Text style={{ fontSize: 11, color: '#2563eb', textAlign: 'right' }}>ציוד רפואי ✓{re.medical_equipment_description ? `: ${re.medical_equipment_description}` : ''}</Text>
+                        )}
+                      </View>
+                    )
+                  })()}
 
                   {ev.type === 'fault' && (
                     <View style={{ gap: 3 }}>
@@ -326,8 +360,9 @@ export default function BikeDetail({ route, navigation }: Props) {
       </View>
 
       {/* Confirm send out */}
-      <Modal visible={showOutConfirm} transparent animationType="slide">
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end', padding: 16 }}>
+      <Modal visible={showOutConfirm} transparent animationType="fade">
+        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 24 }}>
+          <TouchableOpacity style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)' }} activeOpacity={1} onPress={() => setShowOutConfirm(false)} />
           <View style={{ backgroundColor: '#fff', borderRadius: 20, padding: 20, gap: 12 }}>
             <Text style={{ fontSize: 16, fontWeight: '800', color: '#0f172a', textAlign: 'right' }}>אישור הוצאה לרוכב</Text>
             <Text style={{ fontSize: 14, color: '#374151', textAlign: 'right' }}>להוציא אופניים #{bike.org_number} לרוכב?</Text>
@@ -351,8 +386,9 @@ export default function BikeDetail({ route, navigation }: Props) {
       </Modal>
 
       {/* Confirm transfer to sale */}
-      <Modal visible={showSaleConfirm} transparent animationType="slide">
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end', padding: 16 }}>
+      <Modal visible={showSaleConfirm} transparent animationType="fade">
+        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 24 }}>
+          <TouchableOpacity style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)' }} activeOpacity={1} onPress={() => setShowSaleConfirm(false)} />
           <View style={{ backgroundColor: '#fff', borderRadius: 20, padding: 20, gap: 12 }}>
             <Text style={{ fontSize: 16, fontWeight: '800', color: '#0f172a', textAlign: 'right' }}>אישור העברה למכירה</Text>
             <Text style={{ fontSize: 14, color: '#374151', textAlign: 'right' }}>

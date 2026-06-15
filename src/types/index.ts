@@ -23,11 +23,7 @@ export const CATEGORY_COLORS: Record<BikeCategory, string> = {
   sold: 'bg-gray-100 text-gray-600',
 }
 
-export const MANUFACTURERS = [
-  'קלנועית',
-  'ייס',
-  'אחר',
-] as const
+export const MANUFACTURERS = [] as const
 
 export const MISSING_KEYS_OPTIONS = [
   { value: 'battery_key', label: 'מפתח סוללה' },

@@ -26,15 +26,17 @@ import LoanDoc from './src/screens/LoanDoc'
 import ChangePasswordScreen from './src/screens/ChangePasswordScreen'
 
 I18nManager.forceRTL(true)
+if (typeof document !== 'undefined') {
+  document.documentElement.setAttribute('dir', 'rtl')
+  document.documentElement.setAttribute('lang', 'he')
+}
 
 const Stack = createNativeStackNavigator<RootStackParamList>()
 
 function Splash() {
   return (
-    <View style={{ flex: 1, backgroundColor: '#1e3a8a', alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ fontSize: 64, marginBottom: 14 }}>🚲</Text>
-      <Text style={{ color: '#fff', fontSize: 22, fontWeight: '800' }}>מחסן אופניים</Text>
-      <Text style={{ color: 'rgba(255,255,255,0.55)', fontSize: 13, marginTop: 6 }}>איחוד הצלה ישראל</Text>
+    <View style={{ flex: 1, backgroundColor: '#f8fafc', alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={{ fontSize: 64 }}>🚲</Text>
     </View>
   )
 }

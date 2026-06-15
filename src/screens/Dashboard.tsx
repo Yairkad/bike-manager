@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import {
   View, Text, ScrollView, TouchableOpacity,
-  RefreshControl, Alert,
+  RefreshControl, Modal,
 } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
@@ -12,6 +12,7 @@ import { daysUntil } from '../lib/utils'
 import TabBar, { TAB_BAR_HEIGHT } from '../components/TabBar'
 import { useAuth } from '../context/AuthContext'
 import { getInitials } from '../lib/auth'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const ALL_CARDS = [
   { id: 'bikes',    icon: '🚲', title: 'כלים',      bg: '#eff6ff', iconBg: '#dbeafe', screen: 'BikesScreen',   adminOnly: false },
@@ -26,21 +27,14 @@ type OverdueLoan = { id: string; borrower_name: string; return_due_date: string;
 
 export default function Dashboard({ navigation }: Props) {
   const { profile, isAdmin, logout } = useAuth()
+  const insets = useSafeAreaInsets()
   const CARDS = ALL_CARDS.filter(c => isAdmin || !c.adminOnly)
   const [bikes, setBikes] = useState<Bike[]>([])
   const [overdueLoans, setOverdueLoans] = useState<OverdueLoan[]>([])
   const [refreshing, setRefreshing] = useState(false)
+  const [showProfile, setShowProfile] = useState(false)
 
-  const handleAvatarPress = () => {
-    Alert.alert(
-      profile?.name ?? 'משתמש',
-      'בחר פעולה',
-      [
-        { text: 'יציאה מהחשבון', style: 'destructive', onPress: logout },
-        { text: 'ביטול', style: 'cancel' },
-      ]
-    )
-  }
+  const handleAvatarPress = () => setShowProfile(true)
 
   const load = useCallback(async () => {
     const [b, loans] = await Promise.all([getBikes(), getOverdueLoans()])
@@ -67,7 +61,7 @@ export default function Dashboard({ navigation }: Props) {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View style={{ backgroundColor: '#1e3a8a', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 30 }}>
+        <View style={{ backgroundColor: '#1e3a8a', paddingHorizontal: 16, paddingTop: (insets.top || 0) + 12, paddingBottom: 30 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <TouchableOpacity
               onPress={handleAvatarPress}
@@ -147,12 +141,12 @@ export default function Dashboard({ navigation }: Props) {
                 <Text style={{ fontSize: 24 }}>{card.icon}</Text>
               </View>
               <View style={{ marginTop: 'auto' as any, paddingTop: 14 }}>
-                <Text style={{ fontSize: 17, fontWeight: '800', color: '#0f172a', textAlign: 'right' }}>{card.title}</Text>
+                <Text style={{ fontSize: 17, fontWeight: '800', color: '#0f172a', textAlign: 'center' }}>{card.title}</Text>
                 {card.id === 'bikes' && (
-                  <Text style={{ fontSize: 11, color: '#3b82f6', marginTop: 3, textAlign: 'right', fontWeight: '600' }}>{bikes.length} כלים</Text>
+                  <Text style={{ fontSize: 11, color: '#3b82f6', marginTop: 3, textAlign: 'center', fontWeight: '600' }}>{bikes.length} כלים</Text>
                 )}
                 {(card.id === 'parts' || card.id === 'history') && (
-                  <Text style={{ fontSize: 10, color: '#94a3b8', marginTop: 3, textAlign: 'right' }}>בקרוב</Text>
+                  <Text style={{ fontSize: 10, color: '#94a3b8', marginTop: 3, textAlign: 'center' }}>בקרוב</Text>
                 )}
               </View>
             </TouchableOpacity>
@@ -161,6 +155,45 @@ export default function Dashboard({ navigation }: Props) {
       </ScrollView>
 
       <TabBar navigation={navigation} active="Dashboard" />
+
+      {/* Profile modal — centered */}
+      <Modal visible={showProfile} transparent animationType="fade" onRequestClose={() => setShowProfile(false)}>
+        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 24 }}>
+          <TouchableOpacity style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)' }} activeOpacity={1} onPress={() => setShowProfile(false)} />
+          <View style={{ backgroundColor: '#fff', borderRadius: 20, overflow: 'hidden' }}>
+            {/* User info */}
+            <View style={{ paddingHorizontal: 20, paddingVertical: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#1e3a8a' }}>
+              <View style={{ backgroundColor: isAdmin ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.15)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
+                <Text style={{ color: '#fff', fontWeight: '700', fontSize: 12 }}>{isAdmin ? 'מנהל' : 'צפיה'}</Text>
+              </View>
+              <View style={{ alignItems: 'flex-end' }}>
+                <Text style={{ fontSize: 17, fontWeight: '800', color: '#fff' }}>{profile?.name}</Text>
+                <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 2 }}>{profile?.email}</Text>
+              </View>
+            </View>
+            {/* Change password */}
+            <TouchableOpacity
+              onPress={() => { setShowProfile(false); setTimeout(() => navigation.navigate('ChangePassword'), 150) }}
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 17, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' }}>
+              <Text style={{ fontSize: 14, color: '#94a3b8' }}>›</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Text style={{ fontSize: 15, fontWeight: '700', color: '#0f172a' }}>שינוי סיסמה</Text>
+                <Text style={{ fontSize: 20 }}>🔑</Text>
+              </View>
+            </TouchableOpacity>
+            {/* Logout */}
+            <TouchableOpacity
+              onPress={() => { setShowProfile(false); setTimeout(logout, 150) }}
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 17 }}>
+              <Text style={{ fontSize: 14, color: '#ef4444' }}>›</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Text style={{ fontSize: 15, fontWeight: '700', color: '#ef4444' }}>יציאה מהחשבון</Text>
+                <Text style={{ fontSize: 20 }}>🚪</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   )
 }

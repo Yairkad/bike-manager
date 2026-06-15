@@ -50,7 +50,7 @@ export default function NewBike({ navigation }: Props) {
   const goStep2 = async () => {
     const trimmed = orgNumber.trim()
     if (!trimmed) { setOrgError('שדה חובה'); return }
-    if (!frameNumber.trim()) { setFrameError('מספר שלדה הוא שדה חובה'); return }
+    if (category === 'for_sale' && !frameNumber.trim()) { setFrameError('מספר שלדה חובה לכלי למכירה'); return }
 
     const exists = await orgNumberActiveExists(trimmed)
     if (exists) {
@@ -123,22 +123,28 @@ export default function NewBike({ navigation }: Props) {
   return (
     <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
       {/* Stepper */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' }}>
-        {STEPS.map((label, i) => {
+      {(() => {
+        const nodes: React.ReactNode[] = []
+        STEPS.forEach((label, i) => {
           const n = i + 1; const done = step > n; const active = step === n
-          return (
-            <View key={n} style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-              <View style={{ alignItems: 'center', flexDirection: 'row', gap: 4, flexShrink: 1 }}>
-                <View style={{ width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: done ? '#10b981' : active ? '#1e3a8a' : '#e5e7eb' }}>
-                  <Text style={{ fontSize: 10, fontWeight: '700', color: done || active ? '#fff' : '#9ca3af' }}>{done ? '✓' : n}</Text>
-                </View>
-                <Text style={{ fontSize: 11, fontWeight: '600', color: active ? '#1e3a8a' : '#9ca3af' }} numberOfLines={1}>{label}</Text>
+          if (i > 0) nodes.push(
+            <View key={`l${i}`} style={{ flex: 1, height: 2, backgroundColor: step > i ? '#10b981' : '#e5e7eb', alignSelf: 'flex-start', marginTop: 14, marginHorizontal: 4 }} />
+          )
+          nodes.push(
+            <View key={`s${n}`} style={{ alignItems: 'center', minWidth: 52 }}>
+              <View style={{ width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: done ? '#10b981' : active ? '#1e3a8a' : '#e5e7eb' }}>
+                <Text style={{ fontSize: 11, fontWeight: '800', color: done || active ? '#fff' : '#9ca3af' }}>{done ? '✓' : n}</Text>
               </View>
-              {n < STEPS.length && <View style={{ flex: 1, height: 2, backgroundColor: done ? '#10b981' : '#e5e7eb', marginHorizontal: 4, minWidth: 8 }} />}
+              <Text style={{ fontSize: 11, fontWeight: '600', color: active ? '#1e3a8a' : '#9ca3af', marginTop: 4 }}>{label}</Text>
             </View>
           )
-        })}
-      </View>
+        })
+        return (
+          <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' }}>
+            {nodes}
+          </View>
+        )
+      })()}
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
 
@@ -173,9 +179,9 @@ export default function NewBike({ navigation }: Props) {
                   <Text style={{ fontSize: 12, color: '#2563eb', textAlign: 'right', textDecorationLine: 'underline' }}>צפה באופניים הקיים</Text>
                 </TouchableOpacity>
               )}
-              <Field label="מספר שלדה *" value={frameNumber}
+              <Field label={category === 'for_sale' ? 'מספר שלדה *' : 'מספר שלדה'} value={frameNumber}
                 onChangeText={t => { setFrameNumber(t); setFrameError('') }}
-                placeholder="חובה" error={frameError} />
+                placeholder={category === 'for_sale' ? 'חובה לכלי למכירה' : 'אופציונלי'} error={frameError} />
               <Field label="לוחית רישוי" value={licensePlate} onChangeText={setLicensePlate} placeholder="אופציונלי" />
 
               {/* Manufacturer — single-line dropdown */}

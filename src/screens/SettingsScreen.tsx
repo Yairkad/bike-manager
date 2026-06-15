@@ -1,112 +1,47 @@
-import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import type { RootStackParamList } from '../lib/navigation'
 import { useAuth } from '../context/AuthContext'
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SettingsScreen'>
 
-const SOON_ITEMS = [
-  {
-    section: 'ניהול כלים',
-    rows: [
-      { icon: '🔧', label: 'ניהול כלים מתקדם', sub: 'עריכה ידנית, מחיקה, שינוי סטטוס' },
-      { icon: '📊', label: 'ייצוא נתונים', sub: 'CSV / Excel' },
-    ],
-  },
-  {
-    section: 'מסמכים',
-    rows: [
-      { icon: '✍️', label: 'חתימת מוכר קבועה', sub: 'שמירת חתימה לשטרי מכר' },
-      { icon: '📄', label: 'שיתוף מסמכים', sub: 'PDF של שטר מכר / טופס השאלה' },
-    ],
-  },
-]
-
 export default function SettingsScreen({ navigation }: Props) {
-  const { profile, isAdmin, disableBiometric, biometricEnabled } = useAuth()
+  const { biometricEnabled, biometricAvailable, disableBiometric, enableBiometric } = useAuth()
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#f8fafc' }} contentContainerStyle={{ paddingBottom: 40 }}>
 
-      {/* ── Logged-in user info ── */}
-      <View style={{ marginTop: 20, marginHorizontal: 14 }}>
-        <Text style={{ fontSize: 11, fontWeight: '700', color: '#94a3b8', marginBottom: 8, textAlign: 'right', letterSpacing: 0.5 }}>
-          משתמש מחובר
-        </Text>
-        <View style={{ backgroundColor: '#fff', borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: '#f1f5f9' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <View style={{ backgroundColor: isAdmin ? '#eff6ff' : '#f0fdf4', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: isAdmin ? '#1e40af' : '#15803d' }}>
-                  {isAdmin ? 'מנהל' : 'צפיה'}
-                </Text>
-              </View>
-              <Text style={{ fontSize: 11, color: '#94a3b8' }}>{profile?.email}</Text>
-            </View>
-            <Text style={{ fontSize: 14, fontWeight: '700', color: '#0f172a', textAlign: 'right' }}>{profile?.name}</Text>
-          </View>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('ChangePassword')}
-            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14, borderTopWidth: 1, borderTopColor: '#f8fafc' }}>
-            <Text style={{ fontSize: 13, color: '#1e3a8a', fontWeight: '600' }}>›</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Text style={{ fontSize: 14, fontWeight: '700', color: '#0f172a' }}>שינוי סיסמה</Text>
-              <Text style={{ fontSize: 18 }}>🔑</Text>
-            </View>
-          </TouchableOpacity>
-          {biometricEnabled && (
-            <TouchableOpacity
-              onPress={disableBiometric}
-              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14, borderTopWidth: 1, borderTopColor: '#f8fafc' }}>
-              <Text style={{ fontSize: 11, color: '#ef4444', fontWeight: '600' }}>כבה</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#0f172a' }}>ביומטרי פעיל 👆</Text>
-              </View>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-
-      {/* ── Soon items ── */}
-      {SOON_ITEMS.map(group => (
-        <View key={group.section} style={{ marginTop: 20, marginHorizontal: 14 }}>
+      {/* Biometric */}
+      {biometricAvailable && (
+        <View style={{ marginTop: 20, marginHorizontal: 14 }}>
           <Text style={{ fontSize: 11, fontWeight: '700', color: '#94a3b8', marginBottom: 8, textAlign: 'right', letterSpacing: 0.5 }}>
-            {group.section.toUpperCase()}
+            אבטחה
           </Text>
           <View style={{ backgroundColor: '#fff', borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: '#f1f5f9' }}>
-            {group.rows.map((row, i) => (
-              <TouchableOpacity
-                key={row.label}
-                onPress={() => Alert.alert('בקרוב', 'תכונה זו תהיה זמינה בגרסה הבאה 🔜')}
-                style={{
-                  flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-                  paddingHorizontal: 16, paddingVertical: 14,
-                  borderTopWidth: i === 0 ? 0 : 1, borderTopColor: '#f8fafc',
-                }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <View style={{ backgroundColor: '#fef9c3', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
-                    <Text style={{ fontSize: 9, fontWeight: '700', color: '#92400e' }}>בקרוב</Text>
-                  </View>
-                  <Text style={{ fontSize: 11, color: '#94a3b8' }}>{row.sub}</Text>
-                </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '700', color: '#0f172a', textAlign: 'right' }}>{row.label}</Text>
-                  <Text style={{ fontSize: 18 }}>{row.icon}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
+            <TouchableOpacity
+              onPress={biometricEnabled ? disableBiometric : enableBiometric}
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 16 }}>
+              <View style={{ backgroundColor: biometricEnabled ? '#dcfce7' : '#f1f5f9', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: biometricEnabled ? '#15803d' : '#64748b' }}>
+                  {biometricEnabled ? 'פעיל' : 'כבוי'}
+                </Text>
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#0f172a' }}>כניסה ביומטרית 👆</Text>
+              </View>
+            </TouchableOpacity>
           </View>
         </View>
-      ))}
+      )}
 
-      {/* ── App info ── */}
+      {/* App info */}
       <View style={{ marginTop: 20, marginHorizontal: 14 }}>
         <Text style={{ fontSize: 11, fontWeight: '700', color: '#94a3b8', marginBottom: 8, textAlign: 'right', letterSpacing: 0.5 }}>
           אפליקציה
         </Text>
         <View style={{ backgroundColor: '#fff', borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: '#f1f5f9' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14 }}>
-            <Text style={{ fontSize: 11, color: '#94a3b8' }}>v1.0.0 — BIKE-native</Text>
+            <Text style={{ fontSize: 11, color: '#94a3b8' }}>v1.0.3 — BIKE-native</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <Text style={{ fontSize: 14, fontWeight: '700', color: '#0f172a' }}>גרסה</Text>
               <Text style={{ fontSize: 18 }}>ℹ️</Text>
