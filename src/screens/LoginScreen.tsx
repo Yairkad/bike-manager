@@ -45,6 +45,7 @@ export default function LoginScreen() {
 
   const handleEnableBiometric = async (enable: boolean) => {
     if (enable) await enableBiometric()
+    setStep('login')
   }
 
   // ── Header ──────────────────────────────────────────────────
@@ -82,26 +83,26 @@ export default function LoginScreen() {
 
     // Offer biometric after first login
     if (step === 'biometric-ask') return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 }}>
-        <Ionicons name="finger-print" size={80} color="#ea580c" />
-        <Text style={[S.title, { textAlign: 'center', marginTop: 20, marginBottom: 8 }]}>כניסה ביומטרית</Text>
-        <Text style={[S.sub, { textAlign: 'center', marginBottom: 40, lineHeight: 20 }]}>
-          בפעם הבאה אפשר להיכנס עם טביעת אצבע או זיהוי פנים
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 }}>
+        <Ionicons name="finger-print" size={88} color="#ea580c" />
+        <Text style={[S.title, { textAlign: 'center', marginTop: 24, marginBottom: 10 }]}>כניסה ביומטרית</Text>
+        <Text style={[S.sub, { textAlign: 'center', marginBottom: 40, lineHeight: 22, paddingHorizontal: 8 }]}>
+          בפעם הבאה אפשר להיכנס עם טביעת אצבע או זיהוי פנים — בלי להקליד סיסמה
         </Text>
         <TouchableOpacity onPress={() => handleEnableBiometric(true)} activeOpacity={0.85}
-          style={[S.btn, { backgroundColor: '#ea580c', marginBottom: 12 }]}>
+          style={[S.btn, { backgroundColor: '#ea580c', width: '100%', marginBottom: 14, shadowColor: '#ea580c', shadowOpacity: 0.35, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 6 }]}>
           <Text style={[S.btnTxt, { color: '#fff' }]}>הפעל ביומטרי</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleEnableBiometric(false)} activeOpacity={0.85}
-          style={[S.btn, { backgroundColor: '#f1f5f9' }]}>
-          <Text style={[S.btnTxt, { color: '#64748b' }]}>דלג</Text>
+        <TouchableOpacity onPress={() => handleEnableBiometric(false)} activeOpacity={0.7}
+          style={{ paddingVertical: 14, paddingHorizontal: 32 }}>
+          <Text style={{ color: '#94a3b8', fontSize: 15, fontWeight: '500' }}>דלג בינתיים</Text>
         </TouchableOpacity>
       </View>
     )
 
     // Login form
     return (
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           <Text style={[S.title, { textAlign: 'center' }]}>התחברות</Text>
           <Text style={[S.sub, { textAlign: 'center' }]}>הזן את פרטי הכניסה שלך</Text>
