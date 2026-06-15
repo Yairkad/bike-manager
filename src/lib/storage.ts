@@ -32,7 +32,7 @@ export async function getBikeByOrgNumber(num: string): Promise<Bike | undefined>
 }
 
 export async function saveBike(bike: Bike): Promise<void> {
-  row(await supabase.from('bikes').upsert(bike))
+  row(await supabase.from('bikes').upsert(bike as any))
 }
 
 export async function deleteBike(id: string): Promise<void> {
@@ -44,7 +44,7 @@ export async function orgNumberActiveExists(num: string, excludeId?: string): Pr
     .from('bikes')
     .select('id', { count: 'exact', head: true })
     .eq('org_number', num)
-    .not('category', 'in', '("out","sold")')
+    .not('category', 'in', '(out,sold)')
   if (excludeId) q = q.neq('id', excludeId)
   const { count, error } = await q
   if (error) throw error
@@ -73,7 +73,7 @@ export async function getReturnEvents(bikeId?: string): Promise<ReturnEvent[]> {
 }
 
 export async function saveReturnEvent(e: ReturnEvent): Promise<void> {
-  row(await supabase.from('return_events').upsert(e))
+  row(await supabase.from('return_events').upsert(e as any))
 }
 
 // ── Fault events ───────────────────────────────────────────
@@ -87,7 +87,7 @@ export async function getFaultEvents(bikeId?: string): Promise<FaultEvent[]> {
 }
 
 export async function saveFaultEvent(e: FaultEvent): Promise<void> {
-  row(await supabase.from('fault_events').upsert(e))
+  row(await supabase.from('fault_events').upsert(e as any))
 }
 
 // ── Sales ──────────────────────────────────────────────────
@@ -101,7 +101,7 @@ export async function getSales(bikeId?: string): Promise<Sale[]> {
 }
 
 export async function saveSale(s: Sale): Promise<void> {
-  row(await supabase.from('sales').upsert(s))
+  row(await supabase.from('sales').upsert(s as any))
 }
 
 // ── Loans ──────────────────────────────────────────────────
@@ -115,7 +115,7 @@ export async function getLoans(bikeId?: string): Promise<Loan[]> {
 }
 
 export async function saveLoan(l: Loan): Promise<void> {
-  row(await supabase.from('loans').upsert(l))
+  row(await supabase.from('loans').upsert(l as any))
 }
 
 export async function getActiveLoan(bikeId: string): Promise<Loan | undefined> {
@@ -155,7 +155,7 @@ export async function getCategoryChanges(bikeId?: string): Promise<CategoryChang
 }
 
 export async function saveCategoryChange(c: CategoryChange): Promise<void> {
-  row(await supabase.from('category_changes').upsert(c))
+  row(await supabase.from('category_changes').upsert(c as any))
 }
 
 // ── Identity changes ────────────────────────────────────────
@@ -169,5 +169,5 @@ export async function getIdentityChanges(bikeId?: string): Promise<IdentityChang
 }
 
 export async function saveIdentityChange(c: IdentityChange): Promise<void> {
-  row(await supabase.from('identity_changes').upsert(c))
+  row(await supabase.from('identity_changes').upsert(c as any))
 }
