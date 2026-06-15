@@ -16,4 +16,5 @@ export type RootStackParamList = {
   FaultTreatment: { id: string }
   BillOfSale: { id: string; saleId: string }
   LoanDoc: { id: string; loanId: string }
+  ChangePassword: undefined
 }

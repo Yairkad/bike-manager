@@ -45,6 +45,15 @@ export default function SettingsScreen({ navigation }: Props) {
             </View>
             <Text style={{ fontSize: 14, fontWeight: '700', color: '#0f172a', textAlign: 'right' }}>{profile?.name}</Text>
           </View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ChangePassword')}
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14, borderTopWidth: 1, borderTopColor: '#f8fafc' }}>
+            <Text style={{ fontSize: 13, color: '#1e3a8a', fontWeight: '600' }}>›</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: '#0f172a' }}>שינוי סיסמה</Text>
+              <Text style={{ fontSize: 18 }}>🔑</Text>
+            </View>
+          </TouchableOpacity>
           {biometricEnabled && (
             <TouchableOpacity
               onPress={disableBiometric}

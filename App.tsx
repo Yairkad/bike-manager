@@ -23,6 +23,7 @@ import LoanReturn from './src/screens/LoanReturn'
 import FaultTreatment from './src/screens/FaultTreatment'
 import BillOfSale from './src/screens/BillOfSale'
 import LoanDoc from './src/screens/LoanDoc'
+import ChangePasswordScreen from './src/screens/ChangePasswordScreen'
 
 I18nManager.forceRTL(true)
 
@@ -81,6 +82,7 @@ function RootNavigator() {
             <Stack.Screen name="FaultTreatment"  component={FaultTreatment}  options={{ title: 'טיפול בתקלות' }} />
             <Stack.Screen name="BillOfSale"      component={BillOfSale}      options={{ title: 'שטר מכר' }} />
             <Stack.Screen name="LoanDoc"         component={LoanDoc}         options={{ title: 'נוסח השאלה' }} />
+            <Stack.Screen name="ChangePassword"  component={ChangePasswordScreen} options={{ title: 'שינוי סיסמה' }} />
           </>
         )}
       </Stack.Navigator>
