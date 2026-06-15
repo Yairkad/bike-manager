@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { supabase } from '../lib/supabase'
 import {
-  signIn, signOut, getSessionProfile,
+  signIn, signOut, fetchProfile, getSessionProfile,
   isBiometricAvailable, authenticateBiometric,
   getBiometricEnabled, setBiometricEnabled,
   type UserProfile,
@@ -68,7 +68,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error?.message?.includes('Invalid login')) return 'אימייל או סיסמה שגויים'
       return error?.message ?? 'שגיאה בכניסה'
     }
-    const p = await getSessionProfile()
+    const p = await fetchProfile(data.user.id, data.user.email ?? email)
+    if (!p) return 'פרופיל לא נמצא — פנה למנהל המערכת'
     setProfile(p)
     return null
   }

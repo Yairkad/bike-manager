@@ -8,18 +8,13 @@ export type UserRole = 'admin' | 'viewer'
 export type UserProfile = { id: string; name: string; role: UserRole; email: string }
 
 // ── Profile ────────────────────────────────────────────────────
-export const fetchProfile = async (userId: string): Promise<UserProfile | null> => {
-  const { data: authData } = await supabase.auth.getUser()
+export const fetchProfile = async (userId: string, email?: string): Promise<UserProfile | null> => {
   const { data, error } = await supabase
     .from('profiles').select('id, name, role').eq('id', userId).single()
   if (error || !data) return null
   const row = data as unknown as { id: string; name: string; role: string }
-  return {
-    id: row.id,
-    name: row.name,
-    role: row.role as UserRole,
-    email: authData.user?.email ?? '',
-  }
+  const resolvedEmail = email ?? (await supabase.auth.getUser()).data.user?.email ?? ''
+  return { id: row.id, name: row.name, role: row.role as UserRole, email: resolvedEmail }
 }
 
 export const getSessionProfile = async (): Promise<UserProfile | null> => {
