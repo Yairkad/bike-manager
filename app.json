@@ -1,7 +1,8 @@
 {
   "expo": {
     "name": "ניהול מלאי אופניים",
-    "slug": "bike-ihud",
+    "slug": "bikeup",
+    "owner": "yairkadoshs-organization",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -27,6 +28,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "12545a74-5739-40b4-8b98-e2c03816d836"
+      }
     }
   }
 }
