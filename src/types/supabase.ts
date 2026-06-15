@@ -18,6 +18,7 @@ export interface Database {
         Row: {
           id: string; org_number: string; frame_number: string | null
           license_plate: string | null; manufacturer: string | null
+          model: string | null; year: number | null; has_digital_display: boolean | null
           category: BikeCategory; status: BikeStatus
           created_at: string; updated_at: string; repaired_at: string | null
           created_by: string | null
@@ -25,6 +26,7 @@ export interface Database {
         Insert: {
           id?: string; org_number: string; frame_number?: string | null
           license_plate?: string | null; manufacturer?: string | null
+          model?: string | null; year?: number | null; has_digital_display?: boolean | null
           category?: BikeCategory; status?: BikeStatus
           created_at?: string; updated_at?: string; repaired_at?: string | null
           created_by?: string | null
@@ -32,6 +34,7 @@ export interface Database {
         Update: {
           org_number?: string; frame_number?: string | null
           license_plate?: string | null; manufacturer?: string | null
+          model?: string | null; year?: number | null; has_digital_display?: boolean | null
           category?: BikeCategory; status?: BikeStatus
           updated_at?: string; repaired_at?: string | null
         }

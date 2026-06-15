@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import {
   View, Text, ScrollView, TouchableOpacity,
-  RefreshControl, Modal,
+  RefreshControl, Modal, Alert,
 } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
@@ -13,12 +13,13 @@ import TabBar, { TAB_BAR_HEIGHT } from '../components/TabBar'
 import { useAuth } from '../context/AuthContext'
 import { getInitials } from '../lib/auth'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import Ionicons from '@expo/vector-icons/Ionicons'
 
 const ALL_CARDS = [
-  { id: 'bikes',    icon: '🚲', title: 'כלים',      bg: '#eff6ff', iconBg: '#dbeafe', screen: 'BikesScreen',   adminOnly: false },
-  { id: 'parts',    icon: '🔧', title: 'חלפים',     bg: '#f0fdf4', iconBg: '#dcfce7', screen: null,             adminOnly: false },
-  { id: 'history',  icon: '📋', title: 'היסטוריה',  bg: '#fffbeb', iconBg: '#fef3c7', screen: null,             adminOnly: false },
-  { id: 'settings', icon: '⚙️', title: 'הגדרות',    bg: '#f8fafc', iconBg: '#e2e8f0', screen: 'SettingsScreen', adminOnly: true  },
+  { id: 'bikes',    icon: 'bicycle'    as const, title: 'כלים',      bg: '#eff6ff', iconBg: '#dbeafe', iconColor: '#2563eb', screen: 'BikesScreen',     adminOnly: false },
+  { id: 'parts',    icon: 'construct'  as const, title: 'חלפים',     bg: '#f0fdf4', iconBg: '#dcfce7', iconColor: '#16a34a', screen: 'InventoryScreen', adminOnly: false },
+  { id: 'history',  icon: 'time'       as const, title: 'היסטוריה',  bg: '#fffbeb', iconBg: '#fef3c7', iconColor: '#d97706', screen: null,              adminOnly: false },
+  { id: 'settings', icon: 'settings'   as const, title: 'הגדרות',    bg: '#f8fafc', iconBg: '#e2e8f0', iconColor: '#475569', screen: 'SettingsScreen', adminOnly: true  },
 ] as const
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>
@@ -138,14 +139,14 @@ export default function Dashboard({ navigation }: Props) {
             <TouchableOpacity key={card.id} onPress={() => pressCard(card.screen)} activeOpacity={0.82}
               style={{ width: '47.5%', backgroundColor: card.bg, borderRadius: 20, padding: 16, minHeight: 128, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 }}>
               <View style={{ width: 46, height: 46, borderRadius: 14, backgroundColor: card.iconBg, alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-end' }}>
-                <Text style={{ fontSize: 24 }}>{card.icon}</Text>
+                <Ionicons name={card.icon} size={24} color={card.iconColor} />
               </View>
               <View style={{ marginTop: 'auto' as any, paddingTop: 14 }}>
                 <Text style={{ fontSize: 17, fontWeight: '800', color: '#0f172a', textAlign: 'center' }}>{card.title}</Text>
                 {card.id === 'bikes' && (
                   <Text style={{ fontSize: 11, color: '#3b82f6', marginTop: 3, textAlign: 'center', fontWeight: '600' }}>{bikes.length} כלים</Text>
                 )}
-                {(card.id === 'parts' || card.id === 'history') && (
+                {card.id === 'history' && (
                   <Text style={{ fontSize: 10, color: '#94a3b8', marginTop: 3, textAlign: 'center' }}>בקרוב</Text>
                 )}
               </View>

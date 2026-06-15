@@ -1,13 +1,14 @@
 import { View, Text, TouchableOpacity } from 'react-native'
 import { CommonActions } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import Ionicons from '@expo/vector-icons/Ionicons'
 
 export const TAB_BAR_HEIGHT = 58
 
 const TABS = [
-  { screen: 'InventoryScreen', label: 'מלאי', icon: '📦' },
-  { screen: 'Dashboard',       label: 'דשבורד', icon: '🏠' },
-  { screen: 'BikesScreen',     label: 'כלים',   icon: '🚲' },
+  { screen: 'InventoryScreen', label: 'מלאי',    icon: 'cube' as const },
+  { screen: 'Dashboard',       label: 'דשבורד',  icon: 'home' as const },
+  { screen: 'BikesScreen',     label: 'כלים',     icon: 'bicycle' as const },
 ] as const
 
 type TabScreen = (typeof TABS)[number]['screen']
@@ -50,7 +51,11 @@ export default function TabBar({ navigation, active }: { navigation: any; active
                 height: 3, backgroundColor: '#1e3a8a', borderRadius: 99,
               }} />
             )}
-            <Text style={{ fontSize: 22, lineHeight: 26 }}>{tab.icon}</Text>
+            <Ionicons
+              name={isActive ? tab.icon : (`${tab.icon}-outline` as any)}
+              size={23}
+              color={isActive ? '#1e3a8a' : '#94a3b8'}
+            />
             <Text style={{
               fontSize: 10, marginTop: 3,
               fontWeight: isActive ? '700' : '500',

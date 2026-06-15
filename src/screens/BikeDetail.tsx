@@ -121,7 +121,11 @@ export default function BikeDetail({ route, navigation }: Props) {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 26, fontWeight: '900', color: '#0f172a' }}>#{bike.org_number}</Text>
-            {bike.manufacturer && <Text style={{ fontSize: 13, color: '#94a3b8', marginTop: 2 }}>{bike.manufacturer}</Text>}
+            {(bike.manufacturer || bike.model || bike.year) && (
+              <Text style={{ fontSize: 13, color: '#94a3b8', marginTop: 2 }}>
+                {[bike.manufacturer, bike.model, bike.year].filter(Boolean).join(' · ')}
+              </Text>
+            )}
           </View>
           <View style={{ alignItems: 'flex-end', gap: 6 }}>
             {isAdmin && (
@@ -140,10 +144,13 @@ export default function BikeDetail({ route, navigation }: Props) {
           </View>
         </View>
 
-        {(bike.frame_number || bike.license_plate) && (
+        {(bike.frame_number || bike.license_plate || bike.has_digital_display !== undefined) && (
           <View style={{ marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#f8fafc', gap: 3 }}>
             {bike.frame_number && <Text style={{ fontSize: 13, color: '#6b7280' }}>שלדה: <Text style={{ fontWeight: '600', color: '#374151' }}>{bike.frame_number}</Text></Text>}
             {bike.license_plate && <Text style={{ fontSize: 13, color: '#6b7280' }}>לוחית: <Text style={{ fontWeight: '600', color: '#374151' }}>{bike.license_plate}</Text></Text>}
+            {bike.has_digital_display !== undefined && (
+              <Text style={{ fontSize: 13, color: '#6b7280' }}>צג דיגיטלי: <Text style={{ fontWeight: '600', color: '#374151' }}>{bike.has_digital_display ? 'יש' : 'אין'}</Text></Text>
+            )}
           </View>
         )}
 

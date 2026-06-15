@@ -18,6 +18,9 @@ export default function EditBike({ route, navigation }: Props) {
   const [licensePlate, setLicensePlate] = useState('')
   const [manufacturer, setManufacturer] = useState('')
   const [manufacturerCustom, setManufacturerCustom] = useState('')
+  const [model, setModel] = useState('')
+  const [year, setYear] = useState('')
+  const [hasDigitalDisplay, setHasDigitalDisplay] = useState<boolean | undefined>(undefined)
   const [orgError, setOrgError] = useState('')
   const [showDelete, setShowDelete] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -33,6 +36,9 @@ export default function EditBike({ route, navigation }: Props) {
         const known = (MANUFACTURERS as readonly string[]).includes(b.manufacturer ?? '')
         setManufacturer(known ? (b.manufacturer ?? '') : (b.manufacturer ? 'אחר' : ''))
         setManufacturerCustom(known ? '' : (b.manufacturer ?? ''))
+        setModel(b.model ?? '')
+        setYear(b.year ? String(b.year) : '')
+        setHasDigitalDisplay(b.has_digital_display)
       }
     })()
   }, [id]))
@@ -61,7 +67,14 @@ export default function EditBike({ route, navigation }: Props) {
       }
     }
 
-    await saveBike({ ...bike, org_number: trimOrg, frame_number: frameNumber.trim() || undefined, license_plate: licensePlate.trim() || undefined, manufacturer: resolvedMfr, updated_at: now })
+    await saveBike({
+      ...bike, org_number: trimOrg, frame_number: frameNumber.trim() || undefined,
+      license_plate: licensePlate.trim() || undefined, manufacturer: resolvedMfr,
+      model: model.trim() || undefined,
+      year: year.trim() ? Number(year.trim()) : undefined,
+      has_digital_display: hasDigitalDisplay,
+      updated_at: now,
+    })
     setSaving(false)
     navigation.goBack()
   }
@@ -82,7 +95,7 @@ export default function EditBike({ route, navigation }: Props) {
 
         {/* Manufacturer */}
         <View>
-          <Text style={{ fontSize: 12, fontWeight: '700', color: '#374151', marginBottom: 6, textAlign: 'right' }}>יצרן</Text>
+          <Text style={{ fontSize: 12, fontWeight: '700', color: '#374151', marginBottom: 6, textAlign: 'right' }}>חברה</Text>
           <View style={{ gap: 4 }}>
             {['', ...(MANUFACTURERS as readonly string[]), 'אחר'].map(m => (
               <TouchableOpacity key={m || 'none'} onPress={() => { setManufacturer(m); setManufacturerCustom('') }}
@@ -95,9 +108,32 @@ export default function EditBike({ route, navigation }: Props) {
             ))}
             {manufacturer === 'אחר' && (
               <TextInput value={manufacturerCustom} onChangeText={setManufacturerCustom}
-                placeholder="הקלד שם יצרן..." placeholderTextColor="#9ca3af"
+                placeholder="הקלד שם חברה..." placeholderTextColor="#9ca3af"
                 style={{ borderWidth: 1.5, borderColor: '#e5e7eb', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, textAlign: 'right', marginTop: 4 }} />
             )}
+          </View>
+        </View>
+
+        <Field label="מודל" value={model} onChangeText={setModel} placeholder="אופציונלי" />
+        <Field label="שנת ייצור" value={year} onChangeText={setYear} placeholder="אופציונלי" keyboardType="numeric" />
+
+        {/* Digital display — yes/no toggle */}
+        <View>
+          <Text style={{ fontSize: 12, fontWeight: '700', color: '#374151', marginBottom: 5, textAlign: 'right' }}>צג דיגיטלי</Text>
+          <View style={{ flexDirection: 'row', backgroundColor: '#f1f5f9', borderRadius: 10, padding: 3, gap: 2 }}>
+            {[{ v: true, l: 'יש' }, { v: false, l: 'אין' }].map(opt => (
+              <TouchableOpacity key={String(opt.v)} onPress={() => setHasDigitalDisplay(opt.v)}
+                style={{ flex: 1, paddingVertical: 9, borderRadius: 8, alignItems: 'center',
+                  backgroundColor: hasDigitalDisplay === opt.v ? '#fff' : 'transparent',
+                  shadowColor: hasDigitalDisplay === opt.v ? '#000' : 'transparent',
+                  shadowOpacity: hasDigitalDisplay === opt.v ? 0.08 : 0,
+                  shadowRadius: 4, elevation: hasDigitalDisplay === opt.v ? 2 : 0,
+                }}>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: hasDigitalDisplay === opt.v ? '#1e3a8a' : '#94a3b8' }}>
+                  {opt.l}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
       </View>
@@ -116,8 +152,9 @@ export default function EditBike({ route, navigation }: Props) {
         <Text style={{ fontSize: 13, color: '#ef4444', fontWeight: '600' }}>מחק כלי מהמערכת</Text>
       </TouchableOpacity>
 
-      <Modal visible={showDelete} transparent animationType="slide">
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end', padding: 16 }}>
+      <Modal visible={showDelete} transparent animationType="fade" onRequestClose={() => setShowDelete(false)}>
+        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 24 }}>
+          <TouchableOpacity style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)' }} activeOpacity={1} onPress={() => setShowDelete(false)} />
           <View style={{ backgroundColor: '#fff', borderRadius: 20, padding: 20, gap: 12 }}>
             <Text style={{ fontSize: 16, fontWeight: '800', color: '#dc2626', textAlign: 'right' }}>מחיקת כלי</Text>
             <Text style={{ fontSize: 14, color: '#374151', textAlign: 'right' }}>

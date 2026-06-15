@@ -40,6 +40,9 @@ export interface Bike {
   frame_number?: string
   license_plate?: string
   manufacturer?: string
+  model?: string
+  year?: number
+  has_digital_display?: boolean
   category: BikeCategory
   status: BikeStatus
   created_at: string

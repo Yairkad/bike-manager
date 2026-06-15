@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import {
   View, Text, TouchableOpacity, TextInput,
-  KeyboardAvoidingView, Platform, ScrollView, Image,
+  KeyboardAvoidingView, Platform, ScrollView, Image, Modal, ActivityIndicator,
 } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Ionicons } from '@expo/vector-icons'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useAuth } from '../context/AuthContext'
+import { requestPasswordReset } from '../lib/auth'
 
 type Step = 'login' | 'biometric-ask'
 
@@ -23,6 +24,23 @@ export default function LoginScreen() {
   const [error, setError]       = useState('')
   const [loading, setLoading]   = useState(false)
   const passRef = useRef<TextInput>(null)
+
+  const [showReset, setShowReset]   = useState(false)
+  const [resetEmail, setResetEmail] = useState('')
+  const [resetSending, setResetSending] = useState(false)
+  const [resetMsg, setResetMsg]     = useState<{ text: string; ok: boolean } | null>(null)
+
+  const openReset = () => { setResetEmail(email); setResetMsg(null); setShowReset(true) }
+
+  const handleSendReset = async () => {
+    if (!resetEmail.trim()) return
+    setResetSending(true)
+    const { error: err } = await requestPasswordReset(resetEmail)
+    setResetSending(false)
+    setResetMsg(err
+      ? { text: 'שליחת המייל נכשלה, נסה שוב', ok: false }
+      : { text: 'אם הכתובת קיימת במערכת, נשלח אליה מייל לאיפוס הסיסמה', ok: true })
+  }
 
   useEffect(() => {
     if (needsBiometric) triggerBiometric()
@@ -147,6 +165,10 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
+          <TouchableOpacity onPress={openReset} style={{ alignSelf: 'flex-end', marginTop: -14, marginBottom: 18 }}>
+            <Text style={{ color: '#ea580c', fontSize: 13, fontWeight: '600' }}>שכחתי סיסמה</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity
             onPress={handleLogin}
             disabled={loading || !email.trim() || !password}
@@ -173,6 +195,33 @@ export default function LoginScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#ea580c' }}>
       {renderHeader()}
       <View style={S.card}>{renderCard()}</View>
+
+      <Modal visible={showReset} transparent animationType="fade" onRequestClose={() => setShowReset(false)}>
+        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 24 }}>
+          <TouchableOpacity style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)' }} activeOpacity={1} onPress={() => setShowReset(false)} />
+          <View style={{ backgroundColor: '#fff', borderRadius: 20, padding: 20, gap: 14 }}>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: '#0f172a', textAlign: 'right' }}>איפוס סיסמה</Text>
+            <Text style={{ fontSize: 13, color: '#64748b', textAlign: 'right' }}>הזן את כתובת האימייל שלך, נשלח אליה קישור לאיפוס הסיסמה</Text>
+            <TextInput
+              value={resetEmail} onChangeText={v => { setResetEmail(v); setResetMsg(null) }}
+              placeholder="you@example.com" placeholderTextColor="#94a3b8"
+              keyboardType="email-address" autoCapitalize="none" textAlign="right"
+              style={[S.input, { marginBottom: 0, borderColor: resetEmail ? '#ea580c' : '#e2e8f0' }]} />
+            {resetMsg && (
+              <Text style={{ fontSize: 13, textAlign: 'right', color: resetMsg.ok ? '#15803d' : '#dc2626' }}>{resetMsg.text}</Text>
+            )}
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <TouchableOpacity onPress={() => setShowReset(false)} style={{ flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1.5, borderColor: '#e5e7eb', alignItems: 'center' }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#64748b' }}>סגור</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleSendReset} disabled={resetSending || !resetEmail.trim()}
+                style={{ flex: 1, paddingVertical: 13, borderRadius: 12, alignItems: 'center', backgroundColor: '#ea580c', opacity: resetSending || !resetEmail.trim() ? 0.5 : 1 }}>
+                {resetSending ? <ActivityIndicator color="#fff" /> : <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700' }}>שלח מייל</Text>}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   )
 }

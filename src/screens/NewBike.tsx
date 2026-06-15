@@ -34,6 +34,9 @@ export default function NewBike({ navigation }: Props) {
   const [manufacturer, setManufacturer] = useState('')
   const [manufacturerCustom, setManufacturerCustom] = useState('')
   const [showMfrPicker, setShowMfrPicker] = useState(false)
+  const [model, setModel] = useState('')
+  const [year, setYear] = useState('')
+  const [hasDigitalDisplay, setHasDigitalDisplay] = useState<boolean | undefined>(undefined)
   const [category, setCategory] = useState<BikeCategory>('new')
   const [orgError, setOrgError] = useState('')
   const [frameError, setFrameError] = useState('')
@@ -81,7 +84,11 @@ export default function NewBike({ navigation }: Props) {
       id: bikeId, org_number: orgNumber.trim(),
       frame_number: frameNumber.trim() || undefined,
       license_plate: licensePlate.trim() || undefined,
-      manufacturer: mfr, category,
+      manufacturer: mfr,
+      model: model.trim() || undefined,
+      year: year.trim() ? Number(year.trim()) : undefined,
+      has_digital_display: hasDigitalDisplay,
+      category,
       status: faulted ? 'faulty' : 'ok',
       created_at: now, updated_at: now,
       repaired_at: faulted ? undefined : now,
@@ -186,19 +193,42 @@ export default function NewBike({ navigation }: Props) {
 
               {/* Manufacturer — single-line dropdown */}
               <View>
-                <Text style={{ fontSize: 12, fontWeight: '700', color: '#374151', marginBottom: 5, textAlign: 'right' }}>יצרן</Text>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#374151', marginBottom: 5, textAlign: 'right' }}>חברה</Text>
                 <TouchableOpacity onPress={() => setShowMfrPicker(true)}
                   style={{ borderWidth: 1.5, borderColor: '#e5e7eb', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 11, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fafafa' }}>
                   <Text style={{ fontSize: 13, color: '#94a3b8' }}>▾</Text>
                   <Text style={{ fontSize: 14, color: mfrDisplay ? '#0f172a' : '#9ca3af' }}>
-                    {mfrDisplay || 'בחר יצרן...'}
+                    {mfrDisplay || 'בחר חברה...'}
                   </Text>
                 </TouchableOpacity>
                 {manufacturer === 'אחר' && (
                   <TextInput value={manufacturerCustom} onChangeText={setManufacturerCustom}
-                    placeholder="הקלד שם יצרן..." placeholderTextColor="#9ca3af"
+                    placeholder="הקלד שם חברה..." placeholderTextColor="#9ca3af"
                     style={{ borderWidth: 1.5, borderColor: '#e5e7eb', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, textAlign: 'right', marginTop: 6 }} />
                 )}
+              </View>
+
+              <Field label="מודל" value={model} onChangeText={setModel} placeholder="אופציונלי" />
+              <Field label="שנת ייצור" value={year} onChangeText={setYear} placeholder="אופציונלי" keyboardType="numeric" />
+
+              {/* Digital display — yes/no toggle */}
+              <View>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#374151', marginBottom: 5, textAlign: 'right' }}>צג דיגיטלי</Text>
+                <View style={{ flexDirection: 'row', backgroundColor: '#f1f5f9', borderRadius: 10, padding: 3, gap: 2 }}>
+                  {[{ v: true, l: 'יש' }, { v: false, l: 'אין' }].map(opt => (
+                    <TouchableOpacity key={String(opt.v)} onPress={() => setHasDigitalDisplay(opt.v)}
+                      style={{ flex: 1, paddingVertical: 9, borderRadius: 8, alignItems: 'center',
+                        backgroundColor: hasDigitalDisplay === opt.v ? '#fff' : 'transparent',
+                        shadowColor: hasDigitalDisplay === opt.v ? '#000' : 'transparent',
+                        shadowOpacity: hasDigitalDisplay === opt.v ? 0.08 : 0,
+                        shadowRadius: 4, elevation: hasDigitalDisplay === opt.v ? 2 : 0,
+                      }}>
+                      <Text style={{ fontSize: 13, fontWeight: '700', color: hasDigitalDisplay === opt.v ? '#1e3a8a' : '#94a3b8' }}>
+                        {opt.l}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
             </View>
 
@@ -245,7 +275,7 @@ export default function NewBike({ navigation }: Props) {
             <TouchableOpacity onPress={() => setShowMfrPicker(false)}>
               <Text style={{ fontSize: 14, color: '#64748b' }}>סגור</Text>
             </TouchableOpacity>
-            <Text style={{ fontSize: 15, fontWeight: '700', color: '#0f172a' }}>בחר יצרן</Text>
+            <Text style={{ fontSize: 15, fontWeight: '700', color: '#0f172a' }}>בחר חברה</Text>
           </View>
           {['', ...MFR_OPTIONS].map(m => (
             <TouchableOpacity key={m || 'none'}
@@ -255,7 +285,7 @@ export default function NewBike({ navigation }: Props) {
                 {manufacturer === m ? '✓' : ''}
               </Text>
               <Text style={{ fontSize: 15, color: manufacturer === m ? '#1e3a8a' : '#374151', fontWeight: manufacturer === m ? '700' : '400' }}>
-                {m || 'ללא יצרן'}
+                {m || 'ללא חברה'}
               </Text>
             </TouchableOpacity>
           ))}

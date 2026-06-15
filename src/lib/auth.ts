@@ -29,6 +29,9 @@ export const signIn = (email: string, password: string) =>
 
 export const signOut = () => supabase.auth.signOut()
 
+export const requestPasswordReset = (email: string) =>
+  supabase.auth.resetPasswordForEmail(email.trim().toLowerCase())
+
 // ── Biometric ──────────────────────────────────────────────────
 export const getBiometricEnabled = async (): Promise<boolean> =>
   (await AsyncStorage.getItem(BIOMETRIC_KEY)) === 'true'
