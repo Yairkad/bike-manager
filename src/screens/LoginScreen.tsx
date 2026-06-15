@@ -1,403 +1,187 @@
 import { useState, useEffect, useRef } from 'react'
 import {
-  View, Text, TouchableOpacity, TextInput, Platform,
-  Animated, Easing, KeyboardAvoidingView, Alert,
+  View, Text, TouchableOpacity, TextInput,
+  KeyboardAvoidingView, Platform, ScrollView, Image,
 } from 'react-native'
+import { LinearGradient } from 'expo-linear-gradient'
+import { Ionicons } from '@expo/vector-icons'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useAuth } from '../context/AuthContext'
-import { getInitials } from '../lib/auth'
 
-// ── PIN length ─────────────────────────────────────────────────
-const PIN_LENGTH = 4
+type Step = 'login' | 'biometric-ask'
 
-type SetupStep = 'name' | 'pin-new' | 'pin-confirm' | 'biometric-ask'
-type LoginStep = 'login-pin'
-type Step = SetupStep | LoginStep
-
-// ── Sub-components ─────────────────────────────────────────────
-function PinDots({ count }: { count: number }) {
-  return (
-    <View style={{ flexDirection: 'row', gap: 18, justifyContent: 'center', marginVertical: 28 }}>
-      {Array.from({ length: PIN_LENGTH }).map((_, i) => (
-        <View
-          key={i}
-          style={{
-            width: 18, height: 18, borderRadius: 9,
-            backgroundColor: i < count ? '#1e3a8a' : 'transparent',
-            borderWidth: 2,
-            borderColor: i < count ? '#1e3a8a' : '#cbd5e1',
-          }}
-        />
-      ))}
-    </View>
-  )
-}
-
-function NumPad({
-  onPress,
-  onDelete,
-  biometricAvailable,
-  onBiometric,
-  showBiometric,
-}: {
-  onPress: (digit: string) => void
-  onDelete: () => void
-  biometricAvailable: boolean
-  onBiometric?: () => void
-  showBiometric?: boolean
-}) {
-  const rows = [
-    ['1', '2', '3'],
-    ['4', '5', '6'],
-    ['7', '8', '9'],
-    [showBiometric && biometricAvailable ? '👆' : '', '0', '⌫'],
-  ]
-
-  return (
-    <View style={{ gap: 12 }}>
-      {rows.map((row, ri) => (
-        <View key={ri} style={{ flexDirection: 'row', gap: 12, justifyContent: 'center' }}>
-          {row.map((k, ki) => {
-            const isEmpty = !k
-            const isBio = k === '👆'
-            const isDel = k === '⌫'
-            return (
-              <TouchableOpacity
-                key={ki}
-                onPress={() => {
-                  if (isEmpty) return
-                  if (isDel) onDelete()
-                  else if (isBio) onBiometric?.()
-                  else onPress(k)
-                }}
-                disabled={isEmpty}
-                activeOpacity={0.65}
-                style={{
-                  width: 80, height: 80, borderRadius: 40,
-                  backgroundColor: isEmpty ? 'transparent' : isBio ? '#eff6ff' : '#f8fafc',
-                  borderWidth: isEmpty ? 0 : 1.5,
-                  borderColor: isBio ? '#bfdbfe' : '#e2e8f0',
-                  alignItems: 'center', justifyContent: 'center',
-                  shadowColor: '#000',
-                  shadowOpacity: isEmpty ? 0 : 0.06,
-                  shadowRadius: 4,
-                  elevation: isEmpty ? 0 : 2,
-                }}
-              >
-                <Text style={{
-                  fontSize: isDel || isBio ? 22 : 26,
-                  fontWeight: '600',
-                  color: isDel ? '#64748b' : '#0f172a',
-                }}>
-                  {k}
-                </Text>
-              </TouchableOpacity>
-            )
-          })}
-        </View>
-      ))}
-    </View>
-  )
-}
-
-// ── Main screen ────────────────────────────────────────────────
 export default function LoginScreen() {
-  const { adminProfile, biometricAvailable, setupUser, loginWithPin, loginWithBiometric, testBiometric } = useAuth()
+  const {
+    needsBiometric, biometricAvailable, biometricEnabled,
+    login, loginWithBiometric, enableBiometric,
+  } = useAuth()
 
-  const isSetup = !adminProfile
-  const [step, setStep] = useState<Step>(isSetup ? 'name' : 'login-pin')
-  const [name, setName] = useState('')
-  const [pinNew, setPinNew] = useState('')
-  const [pinConfirm, setPinConfirm] = useState('')
-  const [loginPin, setLoginPin] = useState('')
-  const [error, setError] = useState('')
+  const [step, setStep]         = useState<Step>('login')
+  const [email, setEmail]       = useState('')
+  const [password, setPassword] = useState('')
+  const [showPass, setShowPass] = useState(false)
+  const [error, setError]       = useState('')
+  const [loading, setLoading]   = useState(false)
+  const passRef = useRef<TextInput>(null)
 
-  const shakeAnim = useRef(new Animated.Value(0)).current
-  const nameRef = useRef<TextInput>(null)
-
-  // Auto-trigger biometric on login screen mount (admin only)
   useEffect(() => {
-    if (!isSetup && adminProfile?.biometricEnabled && biometricAvailable) {
-      triggerBiometric()
+    if (needsBiometric) triggerBiometric()
+  }, [needsBiometric])
+
+  const triggerBiometric = async () => { await loginWithBiometric() }
+
+  const handleLogin = async () => {
+    if (!email.trim() || !password) return
+    setError('')
+    setLoading(true)
+    const err = await login(email, password)
+    setLoading(false)
+    if (err) {
+      setError(err)
+    } else if (biometricAvailable && !biometricEnabled) {
+      setStep('biometric-ask')
     }
-  }, [])
-
-  const triggerBiometric = async () => {
-    await loginWithBiometric()
-    // AuthContext sets isAuthenticated → App re-renders and shows main stack
-  }
-
-  const doShake = () => {
-    shakeAnim.setValue(0)
-    Animated.sequence([
-      Animated.timing(shakeAnim, { toValue: 12, duration: 70, useNativeDriver: true, easing: Easing.linear }),
-      Animated.timing(shakeAnim, { toValue: -12, duration: 70, useNativeDriver: true, easing: Easing.linear }),
-      Animated.timing(shakeAnim, { toValue: 7, duration: 55, useNativeDriver: true, easing: Easing.linear }),
-      Animated.timing(shakeAnim, { toValue: -4, duration: 45, useNativeDriver: true, easing: Easing.linear }),
-      Animated.timing(shakeAnim, { toValue: 0, duration: 40, useNativeDriver: true, easing: Easing.linear }),
-    ]).start()
-  }
-
-  // ── PIN digit handlers ─────────────────────────────────────
-  const activePin = step === 'pin-new' ? pinNew : step === 'pin-confirm' ? pinConfirm : loginPin
-  const setActivePin = step === 'pin-new' ? setPinNew : step === 'pin-confirm' ? setPinConfirm : setLoginPin
-
-  const handleDigit = (digit: string) => {
-    setError('')
-    const next = activePin + digit
-    if (next.length > PIN_LENGTH) return
-    setActivePin(next)
-
-    if (next.length < PIN_LENGTH) return
-
-    // PIN complete — act after a short paint delay
-    setTimeout(async () => {
-      if (step === 'login-pin') {
-        const ok = await loginWithPin(next)
-        if (!ok) {
-          doShake()
-          setError('PIN שגוי — נסה שוב')
-          setLoginPin('')
-        }
-      } else if (step === 'pin-new') {
-        setPinConfirm('')
-        setStep('pin-confirm')
-      } else if (step === 'pin-confirm') {
-        if (next !== pinNew) {
-          doShake()
-          setError('PINים לא תואמים — נסה שוב')
-          setPinConfirm('')
-        } else if (biometricAvailable) {
-          setStep('biometric-ask')
-        } else {
-          await setupUser(name.trim(), pinNew, false)
-        }
-      }
-    }, 100)
-  }
-
-  const handleDelete = () => {
-    setError('')
-    setActivePin(p => p.slice(0, -1))
   }
 
   const handleEnableBiometric = async (enable: boolean) => {
-    if (enable) {
-      const ok = await testBiometric()
-      await setupUser(name.trim(), pinNew, ok)
-    } else {
-      await setupUser(name.trim(), pinNew, false)
-    }
+    if (enable) await enableBiometric()
   }
 
-  // ── Blue header ──────────────────────────────────────────────
+  // ── Header ──────────────────────────────────────────────────
   const renderHeader = () => (
-    <View style={{ paddingTop: 36, paddingBottom: 44, alignItems: 'center' }}>
-      <Text style={{ fontSize: 60, marginBottom: 10 }}>🚲</Text>
-      <Text style={{ color: '#fff', fontSize: 22, fontWeight: '800', letterSpacing: 0.2 }}>מחסן אופניים</Text>
-      <Text style={{ color: 'rgba(255,255,255,0.55)', fontSize: 12, marginTop: 4 }}>איחוד הצלה ישראל</Text>
-    </View>
+    <LinearGradient
+      colors={['#ea580c', '#f97316']}
+      start={{ x: 0.2, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={{ paddingTop: 28, paddingBottom: 36, alignItems: 'center' }}
+    >
+      <Image
+        source={require('../../assets/icon.png')}
+        style={{ width: 190, height: 148, resizeMode: 'contain' }}
+      />
+      <Text style={{ color: 'rgba(0,0,0,0.65)', fontSize: 15, fontWeight: '700', marginTop: 6 }}>
+        מרלו"ג איחוד הצלה
+      </Text>
+    </LinearGradient>
   )
 
-  // ── Card body per step ───────────────────────────────────────
+  // ── Card body ────────────────────────────────────────────────
   const renderCard = () => {
-    // ── Setup: name ──
-    if (step === 'name') {
-      return (
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-          <Text style={styles.cardTitle}>ברוך הבא! 👋</Text>
-          <Text style={styles.cardSub}>בוא נגדיר את הפרופיל שלך</Text>
+    // Waiting for biometric
+    if (needsBiometric) return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Ionicons name="finger-print" size={80} color="#ea580c" />
+        <Text style={[S.title, { textAlign: 'center', marginTop: 20, marginBottom: 8 }]}>אמת זהות</Text>
+        <Text style={[S.sub, { textAlign: 'center' }]}>השתמש בטביעת אצבע או זיהוי פנים</Text>
+        <TouchableOpacity onPress={triggerBiometric} activeOpacity={0.85}
+          style={[S.btn, { backgroundColor: '#ea580c', marginTop: 32 }]}>
+          <Text style={[S.btnTxt, { color: '#fff' }]}>נסה שוב</Text>
+        </TouchableOpacity>
+      </View>
+    )
 
-          <Text style={styles.label}>השם שלך</Text>
-          <TextInput
-            ref={nameRef}
-            value={name}
-            onChangeText={setName}
-            placeholder="ישראל ישראלי"
-            placeholderTextColor="#94a3b8"
-            textAlign="right"
-            autoFocus
-            returnKeyType="done"
-            onSubmitEditing={() => name.trim().length > 1 && setStep('pin-new')}
-            style={[styles.input, { borderColor: name ? '#1e3a8a' : '#e2e8f0' }]}
-          />
+    // Offer biometric after first login
+    if (step === 'biometric-ask') return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 }}>
+        <Ionicons name="finger-print" size={80} color="#ea580c" />
+        <Text style={[S.title, { textAlign: 'center', marginTop: 20, marginBottom: 8 }]}>כניסה ביומטרית</Text>
+        <Text style={[S.sub, { textAlign: 'center', marginBottom: 40, lineHeight: 20 }]}>
+          בפעם הבאה אפשר להיכנס עם טביעת אצבע או זיהוי פנים
+        </Text>
+        <TouchableOpacity onPress={() => handleEnableBiometric(true)} activeOpacity={0.85}
+          style={[S.btn, { backgroundColor: '#ea580c', marginBottom: 12 }]}>
+          <Text style={[S.btnTxt, { color: '#fff' }]}>הפעל ביומטרי</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleEnableBiometric(false)} activeOpacity={0.85}
+          style={[S.btn, { backgroundColor: '#f1f5f9' }]}>
+          <Text style={[S.btnTxt, { color: '#64748b' }]}>דלג</Text>
+        </TouchableOpacity>
+      </View>
+    )
 
-          <TouchableOpacity
-            onPress={() => name.trim().length > 1 && setStep('pin-new')}
-            activeOpacity={0.85}
-            style={[styles.btn, { backgroundColor: name.trim().length > 1 ? '#1e3a8a' : '#e2e8f0' }]}
-          >
-            <Text style={[styles.btnText, { color: name.trim().length > 1 ? '#fff' : '#94a3b8' }]}>המשך ←</Text>
-          </TouchableOpacity>
-        </KeyboardAvoidingView>
-      )
-    }
-
-    // ── PIN steps (new / confirm / login) ──
-    if (step === 'pin-new' || step === 'pin-confirm' || step === 'login-pin') {
-      const pinLabel =
-        step === 'pin-new' ? 'צור PIN בן 4 ספרות' :
-        step === 'pin-confirm' ? 'אשר את ה-PIN' :
-        `שלום, ${adminProfile?.name.split(' ')[0]} 👋`
-
-      const pinSub =
-        step === 'pin-new' ? 'PIN זה ישמש לכניסה לאפליקציה' :
-        step === 'pin-confirm' ? 'הזן שוב לאישור' :
-        'הזן PIN לכניסה'
-
-      const pinCount = step === 'pin-confirm' ? pinConfirm.length : step === 'pin-new' ? pinNew.length : loginPin.length
-
-      return (
-        <View style={{ flex: 1 }}>
-          {/* Avatar for login mode */}
-          {step === 'login-pin' && adminProfile && (
-            <View style={{ alignItems: 'center', marginBottom: 8 }}>
-              <View style={styles.avatarCircle}>
-                <Text style={styles.avatarText}>{getInitials(adminProfile.name)}</Text>
-              </View>
-            </View>
-          )}
-
-          <Text style={[styles.cardTitle, { textAlign: 'center', marginBottom: 2 }]}>{pinLabel}</Text>
-          <Text style={[styles.cardSub, { textAlign: 'center' }]}>{pinSub}</Text>
+    // Login form
+    return (
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+          <Text style={[S.title, { textAlign: 'center' }]}>התחברות</Text>
+          <Text style={[S.sub, { textAlign: 'center' }]}>הזן את פרטי הכניסה שלך</Text>
 
           {error ? (
-            <Text style={{ color: '#ef4444', textAlign: 'center', fontSize: 13, marginTop: 4 }}>{error}</Text>
+            <View style={{ backgroundColor: '#fef2f2', borderRadius: 10, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: '#fecaca' }}>
+              <Text style={{ color: '#dc2626', fontSize: 13, textAlign: 'right' }}>{error}</Text>
+            </View>
           ) : null}
 
-          <Animated.View style={{ transform: [{ translateX: shakeAnim }] }}>
-            <PinDots count={pinCount} />
-          </Animated.View>
-
-          <NumPad
-            onPress={handleDigit}
-            onDelete={handleDelete}
-            biometricAvailable={biometricAvailable}
-            showBiometric={step === 'login-pin' && adminProfile?.biometricEnabled}
-            onBiometric={triggerBiometric}
+          <Text style={S.label}>אימייל</Text>
+          <TextInput
+            value={email} onChangeText={v => { setEmail(v); setError('') }}
+            placeholder="you@example.com"
+            placeholderTextColor="#94a3b8"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            returnKeyType="next"
+            onSubmitEditing={() => passRef.current?.focus()}
+            textAlign="right"
+            style={[S.input, { borderColor: email ? '#ea580c' : '#e2e8f0' }]}
           />
 
-          {step === 'pin-confirm' && (
-            <TouchableOpacity
-              onPress={() => { setStep('pin-new'); setPinConfirm(''); setPinNew(''); setError('') }}
-              style={{ marginTop: 20, alignItems: 'center' }}
-            >
-              <Text style={{ color: '#94a3b8', fontSize: 13 }}>← חזור</Text>
+          <Text style={S.label}>סיסמה</Text>
+          <View style={{ position: 'relative', marginBottom: 24 }}>
+            <TextInput
+              ref={passRef}
+              value={password} onChangeText={v => { setPassword(v); setError('') }}
+              placeholder="••••••••"
+              placeholderTextColor="#94a3b8"
+              secureTextEntry={!showPass}
+              autoComplete="password"
+              returnKeyType="done"
+              onSubmitEditing={handleLogin}
+              textAlign="right"
+              style={[S.input, { borderColor: password ? '#ea580c' : '#e2e8f0', marginBottom: 0, paddingLeft: 48 }]}
+            />
+            <TouchableOpacity onPress={() => setShowPass(p => !p)}
+              style={{ position: 'absolute', left: 14, top: 14 }}>
+              <Ionicons name={showPass ? 'eye-off-outline' : 'eye-outline'} size={20} color="#94a3b8" />
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity
+            onPress={handleLogin}
+            disabled={loading || !email.trim() || !password}
+            activeOpacity={0.85}
+            style={[S.btn, { backgroundColor: email.trim() && password ? '#ea580c' : '#e2e8f0' }]}>
+            <Text style={[S.btnTxt, { color: email.trim() && password ? '#fff' : '#94a3b8' }]}>
+              {loading ? 'מתחבר...' : 'התחברות'}
+            </Text>
+          </TouchableOpacity>
+
+          {biometricEnabled && biometricAvailable && (
+            <TouchableOpacity onPress={triggerBiometric} activeOpacity={0.8}
+              style={{ marginTop: 20, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}>
+              <Text style={{ color: '#ea580c', fontSize: 14, fontWeight: '600' }}>כניסה ביומטרית</Text>
+              <Ionicons name="finger-print" size={22} color="#ea580c" />
             </TouchableOpacity>
           )}
-        </View>
-      )
-    }
-
-    // ── Biometric enrollment ask ──
-    if (step === 'biometric-ask') {
-      return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 }}>
-          <Text style={{ fontSize: 68, marginBottom: 20 }}>👆</Text>
-          <Text style={[styles.cardTitle, { textAlign: 'center', marginBottom: 8 }]}>כניסה ביומטרית</Text>
-          <Text style={[styles.cardSub, { textAlign: 'center', marginBottom: 40, lineHeight: 20 }]}>
-            אפשר להשתמש בטביעת אצבע או זיהוי פנים לכניסה מהירה בפעמים הבאות
-          </Text>
-          <TouchableOpacity
-            onPress={() => handleEnableBiometric(true)}
-            activeOpacity={0.85}
-            style={[styles.btn, { backgroundColor: '#1e3a8a', marginBottom: 12 }]}
-          >
-            <Text style={[styles.btnText, { color: '#fff' }]}>הפעל ביומטרי</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => handleEnableBiometric(false)}
-            activeOpacity={0.85}
-            style={[styles.btn, { backgroundColor: '#f1f5f9' }]}
-          >
-            <Text style={[styles.btnText, { color: '#64748b' }]}>דלג — רק PIN</Text>
-          </TouchableOpacity>
-        </View>
-      )
-    }
-
-    return null
+        </ScrollView>
+      </KeyboardAvoidingView>
+    )
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#1e3a8a' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#ea580c' }}>
       {renderHeader()}
-      <View style={styles.card}>
-        {renderCard()}
-      </View>
+      <View style={S.card}>{renderCard()}</View>
     </SafeAreaView>
   )
 }
 
-// ── Shared styles ──────────────────────────────────────────────
-const styles = {
-  card: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    paddingHorizontal: 28,
-    paddingTop: 32,
-    paddingBottom: 24,
-  },
-  cardTitle: {
-    fontSize: 22,
-    fontWeight: '800' as const,
-    color: '#0f172a',
-    textAlign: 'right' as const,
-    marginBottom: 6,
-  },
-  cardSub: {
-    fontSize: 13,
-    color: '#64748b',
-    textAlign: 'right' as const,
-    marginBottom: 26,
-  },
-  label: {
-    fontSize: 13,
-    fontWeight: '600' as const,
-    color: '#374151',
-    textAlign: 'right' as const,
-    marginBottom: 8,
-  },
-  input: {
-    height: 52,
-    borderWidth: 1.5,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    color: '#0f172a',
-    backgroundColor: '#f8fafc',
-    marginBottom: 16,
-  },
-  btn: {
-    height: 52,
-    borderRadius: 14,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    width: '100%' as const,
-  },
-  btnText: {
-    fontSize: 16,
-    fontWeight: '700' as const,
-  },
-  avatarCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: '#1e3a8a',
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    marginBottom: 10,
-    shadowColor: '#1e3a8a',
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  avatarText: {
-    color: '#fff',
-    fontSize: 24,
-    fontWeight: '800' as const,
-    letterSpacing: 1,
-  },
+const S = {
+  card:   { flex: 1, backgroundColor: '#fff', borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 28, paddingTop: 32, paddingBottom: 24 } as const,
+  title:  { fontSize: 22, fontWeight: '800' as const, color: '#0f172a', marginBottom: 6 },
+  sub:    { fontSize: 13, color: '#64748b', marginBottom: 26 },
+  label:  { fontSize: 13, fontWeight: '600' as const, color: '#374151', textAlign: 'right' as const, marginBottom: 8 },
+  input:  { height: 52, borderWidth: 1.5, borderRadius: 14, paddingHorizontal: 16, fontSize: 16, color: '#0f172a', backgroundColor: '#f8fafc', marginBottom: 16 } as const,
+  btn:    { height: 52, borderRadius: 14, alignItems: 'center' as const, justifyContent: 'center' as const },
+  btnTxt: { fontSize: 16, fontWeight: '700' as const },
 }

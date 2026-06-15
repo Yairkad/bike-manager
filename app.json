@@ -1,11 +1,16 @@
 {
   "expo": {
-    "name": "BIKE-native",
-    "slug": "BIKE-native",
+    "name": "ניהול מלאי אופניים",
+    "slug": "bike-ihud",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#f97316"
+    },
     "ios": {
       "supportsTablet": true
     },

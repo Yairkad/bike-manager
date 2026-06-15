@@ -2,7 +2,6 @@
 export type RootStackParamList = {
   Login: undefined
   Dashboard: undefined
-  SetupViewer: undefined
   BikesScreen: { initialFilter?: string } | undefined
   InventoryScreen: undefined
   SettingsScreen: undefined

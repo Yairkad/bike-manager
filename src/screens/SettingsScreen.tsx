@@ -23,47 +23,40 @@ const SOON_ITEMS = [
 ]
 
 export default function SettingsScreen({ navigation }: Props) {
-  const { viewerProfile, isAdmin } = useAuth()
+  const { profile, isAdmin, disableBiometric, biometricEnabled } = useAuth()
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#f8fafc' }} contentContainerStyle={{ paddingBottom: 40 }}>
 
-      {/* ── Users section (admin only) ── */}
-      {isAdmin && (
-        <View style={{ marginTop: 20, marginHorizontal: 14 }}>
-          <Text style={{ fontSize: 11, fontWeight: '700', color: '#94a3b8', marginBottom: 8, textAlign: 'right', letterSpacing: 0.5 }}>
-            ניהול משתמשים
-          </Text>
-          <View style={{ backgroundColor: '#fff', borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: '#f1f5f9' }}>
-
-            {/* Viewer user row */}
-            <TouchableOpacity
-              onPress={() => navigation.navigate('SetupViewer')}
-              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14 }}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                {viewerProfile ? (
-                  <View style={{ backgroundColor: '#f0fdf4', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
-                    <Text style={{ fontSize: 11, fontWeight: '700', color: '#15803d' }}>פעיל</Text>
-                  </View>
-                ) : (
-                  <View style={{ backgroundColor: '#f1f5f9', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
-                    <Text style={{ fontSize: 11, fontWeight: '700', color: '#64748b' }}>לא מוגדר</Text>
-                  </View>
-                )}
-                <Text style={{ fontSize: 11, color: '#94a3b8' }}>
-                  {viewerProfile ? viewerProfile.name : 'הוסף משתמש צפיה'}
+      {/* ── Logged-in user info ── */}
+      <View style={{ marginTop: 20, marginHorizontal: 14 }}>
+        <Text style={{ fontSize: 11, fontWeight: '700', color: '#94a3b8', marginBottom: 8, textAlign: 'right', letterSpacing: 0.5 }}>
+          משתמש מחובר
+        </Text>
+        <View style={{ backgroundColor: '#fff', borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: '#f1f5f9' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <View style={{ backgroundColor: isAdmin ? '#eff6ff' : '#f0fdf4', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: isAdmin ? '#1e40af' : '#15803d' }}>
+                  {isAdmin ? 'מנהל' : 'צפיה'}
                 </Text>
               </View>
+              <Text style={{ fontSize: 11, color: '#94a3b8' }}>{profile?.email}</Text>
+            </View>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: '#0f172a', textAlign: 'right' }}>{profile?.name}</Text>
+          </View>
+          {biometricEnabled && (
+            <TouchableOpacity
+              onPress={disableBiometric}
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14, borderTopWidth: 1, borderTopColor: '#f8fafc' }}>
+              <Text style={{ fontSize: 11, color: '#ef4444', fontWeight: '600' }}>כבה</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#0f172a', textAlign: 'right' }}>משתמש צפיה</Text>
-                <Text style={{ fontSize: 18 }}>👁</Text>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#0f172a' }}>ביומטרי פעיל 👆</Text>
               </View>
             </TouchableOpacity>
-
-          </View>
+          )}
         </View>
-      )}
+      </View>
 
       {/* ── Soon items ── */}
       {SOON_ITEMS.map(group => (

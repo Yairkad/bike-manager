@@ -25,7 +25,7 @@ type OverdueLoan = { id: string; borrower_name: string; return_due_date: string;
 
 
 export default function Dashboard({ navigation }: Props) {
-  const { user, isAdmin, logout } = useAuth()
+  const { profile, isAdmin, logout } = useAuth()
   const CARDS = ALL_CARDS.filter(c => isAdmin || !c.adminOnly)
   const [bikes, setBikes] = useState<Bike[]>([])
   const [overdueLoans, setOverdueLoans] = useState<OverdueLoan[]>([])
@@ -33,7 +33,7 @@ export default function Dashboard({ navigation }: Props) {
 
   const handleAvatarPress = () => {
     Alert.alert(
-      user?.name ?? 'משתמש',
+      profile?.name ?? 'משתמש',
       'בחר פעולה',
       [
         { text: 'יציאה מהחשבון', style: 'destructive', onPress: logout },
@@ -75,7 +75,7 @@ export default function Dashboard({ navigation }: Props) {
               style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.4)' }}
             >
               <Text style={{ color: '#fff', fontWeight: '800', fontSize: 13, letterSpacing: 0.5 }}>
-                {user ? getInitials(user.name) : '?'}
+                {profile ? getInitials(profile.name) : '?'}
               </Text>
             </TouchableOpacity>
             <View style={{ alignItems: 'flex-end' }}>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>עיצובי אימייל — מחסן אופניים</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #e2e8f0; font-family: Arial, sans-serif; padding: 32px 16px; }
+    h1 { text-align: center; color: #1e293b; font-size: 22px; margin-bottom: 8px; }
+    .subtitle { text-align: center; color: #64748b; font-size: 13px; margin-bottom: 40px; }
+    .grid { display: flex; flex-direction: column; gap: 60px; max-width: 620px; margin: 0 auto; }
+    .template-wrap { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.12); }
+    .template-label { background: #1e293b; color: #fff; padding: 10px 20px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; direction: rtl; }
+    .copy-btn { background: #3b82f6; color: #fff; border: none; padding: 5px 14px; border-radius: 6px; font-size: 11px; cursor: pointer; font-family: Arial; }
+    .copy-btn:hover { background: #2563eb; }
+    iframe { width: 100%; border: none; display: block; }
+    .selected-badge { background: #22c55e; color: #fff; padding: 2px 10px; border-radius: 99px; font-size: 10px; display: none; }
+  </style>
+</head>
+<body>
+
+<h1>🚲 עיצובי אימייל — הזמנת משתמש</h1>
+<p class="subtitle">בחר עיצוב ולחץ "העתק HTML" לשימוש ב-Supabase</p>
+
+<div class="grid">
+
+  <!-- ── 1: נקי ומינימלי ── -->
+  <div class="template-wrap">
+    <div class="template-label">
+      <span>1 — נקי ומינימלי</span>
+      <button class="copy-btn" onclick="copyTemplate(1)">העתק HTML</button>
+    </div>
+    <iframe id="t1" srcdoc="" height="420"></iframe>
+  </div>
+
+  <!-- ── 2: כהה ומקצועי ── -->
+  <div class="template-wrap">
+    <div class="template-label">
+      <span>2 — כהה ומקצועי</span>
+      <button class="copy-btn" onclick="copyTemplate(2)">העתק HTML</button>
+    </div>
+    <iframe id="t2" srcdoc="" height="460"></iframe>
+  </div>
+
+  <!-- ── 3: אנרגטי עם גרדיאנט ── -->
+  <div class="template-wrap">
+    <div class="template-label">
+      <span>3 — אנרגטי עם גרדיאנט</span>
+      <button class="copy-btn" onclick="copyTemplate(3)">העתק HTML</button>
+    </div>
+    <iframe id="t3" srcdoc="" height="460"></iframe>
+  </div>
+
+  <!-- ── 4: כרטיס מעוצב ── -->
+  <div class="template-wrap">
+    <div class="template-label">
+      <span>4 — כרטיס עם מסגרת</span>
+      <button class="copy-btn" onclick="copyTemplate(4)">העתק HTML</button>
+    </div>
+    <iframe id="t4" srcdoc="" height="480"></iframe>
+  </div>
+
+  <!-- ── 5: טקסטואלי ומינימל ── -->
+  <div class="template-wrap">
+    <div class="template-label">
+      <span>5 — פשוט וטקסטואלי</span>
+      <button class="copy-btn" onclick="copyTemplate(5)">העתק HTML</button>
+    </div>
+    <iframe id="t5" srcdoc="" height="400"></iframe>
+  </div>
+
+</div>
+
+<script>
+const templates = {
+
+1: `<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"></head>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:Arial,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td align="center" style="padding:40px 16px">
+      <table width="520" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
+        <tr><td style="background:#1e3a8a;padding:36px;text-align:center">
+          <div style="font-size:52px;line-height:1">🚲</div>
+          <div style="color:#fff;font-size:20px;font-weight:700;margin-top:10px">מחסן אופניים</div>
+          <div style="color:rgba(255,255,255,0.55);font-size:12px;margin-top:4px">איחוד הצלה ישראל</div>
+        </td></tr>
+        <tr><td style="padding:40px 36px;text-align:right">
+          <div style="font-size:22px;font-weight:700;color:#0f172a;margin-bottom:12px">הוזמנת להצטרף 👋</div>
+          <div style="font-size:14px;color:#64748b;line-height:1.8;margin-bottom:32px">
+            קיבלת גישה למערכת ניהול מחסן האופניים של איחוד הצלה ישראל.<br>
+            לחץ על הכפתור להגדרת הסיסמה שלך.
+          </div>
+          <div style="text-align:center;margin-bottom:32px">
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#1e3a8a;color:#fff;text-decoration:none;padding:15px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px">הגדר סיסמה ←</a>
+          </div>
+          <div style="background:#f8fafc;border-radius:10px;padding:14px 18px;font-size:11px;color:#94a3b8;text-align:center;border:1px solid #e2e8f0">
+            הקישור תקף ל-24 שעות בלבד
+          </div>
+        </td></tr>
+        <tr><td style="padding:20px 36px;border-top:1px solid #f1f5f9;text-align:center">
+          <div style="font-size:11px;color:#cbd5e1">אם לא ביקשת גישה זו, ניתן להתעלם מהודעה זו.</div>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`,
+
+2: `<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"></head>
+<body style="margin:0;padding:0;background:#0f172a;font-family:Arial,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td align="center" style="padding:40px 16px">
+      <table width="520" cellpadding="0" cellspacing="0" style="background:#1e293b;border-radius:16px;border:1px solid #334155;overflow:hidden">
+        <tr><td style="padding:36px 36px 0;text-align:right">
+          <div style="font-size:44px;line-height:1;margin-bottom:20px">🚲</div>
+          <div style="color:#475569;font-size:10px;font-weight:700;letter-spacing:2px;margin-bottom:10px">איחוד הצלה ישראל</div>
+          <div style="color:#f1f5f9;font-size:24px;font-weight:700;margin-bottom:14px">ברוך הבא למערכת</div>
+          <div style="color:#94a3b8;font-size:14px;line-height:1.8;margin-bottom:32px">
+            קיבלת גישה למחסן האופניים.<br>לחץ כדי לבחור סיסמה ולהתחיל.
+          </div>
+          <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#3b82f6;color:#fff;text-decoration:none;padding:14px 34px;border-radius:10px;font-size:15px;font-weight:700">הפעל חשבון ←</a>
+        </td></tr>
+        <tr><td style="padding:32px 36px;text-align:right">
+          <div style="border-top:1px solid #334155;padding-top:24px">
+            <div style="color:#475569;font-size:11px;line-height:1.7">
+              הקישור תקף ל-24 שעות.<br>
+              אם לא ביקשת גישה — התעלם מהודעה זו.
+            </div>
+          </div>
+        </td></tr>
+      </table>
+      <div style="margin-top:20px;color:#334155;font-size:10px;text-align:center">מחסן אופניים — איחוד הצלה ישראל</div>
+    </td></tr>
+  </table>
+</body>
+</html>`,
+
+3: `<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"></head>
+<body style="margin:0;padding:0;background:#eff6ff;font-family:Arial,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td align="center" style="padding:40px 16px">
+      <table width="520" cellpadding="0" cellspacing="0" style="border-radius:20px;overflow:hidden;box-shadow:0 8px 32px rgba(30,58,138,0.15)">
+        <tr><td style="background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 100%);padding:44px 36px;text-align:center">
+          <div style="width:72px;height:72px;background:rgba(255,255,255,0.15);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:38px;margin-bottom:16px;line-height:72px">🚲</div>
+          <div style="color:#fff;font-size:22px;font-weight:800;margin-bottom:4px">מחסן אופניים</div>
+          <div style="color:rgba(255,255,255,0.6);font-size:12px">איחוד הצלה ישראל</div>
+        </td></tr>
+        <tr><td style="background:#fff;padding:40px 36px;text-align:right">
+          <div style="display:inline-block;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:700;padding:4px 12px;border-radius:99px;margin-bottom:16px">הזמנה חדשה</div>
+          <div style="font-size:22px;font-weight:800;color:#0f172a;margin-bottom:12px">הוזמנת להצטרף! 🎉</div>
+          <div style="font-size:14px;color:#64748b;line-height:1.8;margin-bottom:32px">
+            מנהל הוסיף אותך למערכת ניהול מחסן האופניים.<br>
+            לחץ על הכפתור כדי לבחור סיסמה ולהתחיל לעבוד.
+          </div>
+          <div style="text-align:center">
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;text-decoration:none;padding:16px 44px;border-radius:12px;font-size:16px;font-weight:800;letter-spacing:0.3px;box-shadow:0 4px 16px rgba(37,99,235,0.4)">כניסה ראשונה ←</a>
+          </div>
+        </td></tr>
+        <tr><td style="background:#f8fafc;padding:18px 36px;text-align:center;border-top:1px solid #e2e8f0">
+          <span style="font-size:11px;color:#94a3b8">הקישור תקף ל-24 שעות · אם לא ביקשת — התעלם</span>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`,
+
+4: `<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"></head>
+<body style="margin:0;padding:0;background:#f8fafc;font-family:Arial,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td align="center" style="padding:40px 16px">
+
+      <table width="520" cellpadding="0" cellspacing="0">
+        <tr><td style="text-align:center;padding-bottom:24px">
+          <span style="font-size:36px">🚲</span>
+          <div style="color:#64748b;font-size:12px;margin-top:6px;font-weight:600">מחסן אופניים — איחוד הצלה ישראל</div>
+        </td></tr>
+      </table>
+
+      <table width="520" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;border:2px solid #1e3a8a;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06)">
+        <tr><td style="background:#1e3a8a;height:6px"></td></tr>
+        <tr><td style="padding:36px;text-align:right">
+          <div style="font-size:13px;color:#3b82f6;font-weight:700;margin-bottom:8px">📨 הזמנה אישית</div>
+          <div style="font-size:22px;font-weight:800;color:#0f172a;margin-bottom:14px">שלום, ברוך הבא!</div>
+          <div style="font-size:14px;color:#475569;line-height:1.8;margin-bottom:28px">
+            הוזמנת להצטרף למערכת ניהול מחסן האופניים של איחוד הצלה ישראל.
+          </div>
+
+          <table cellpadding="0" cellspacing="0" style="background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;width:100%;margin-bottom:28px">
+            <tr>
+              <td style="padding:14px 18px;font-size:12px;color:#64748b;border-bottom:1px solid #e2e8f0">📧 חשבון</td>
+              <td style="padding:14px 18px;font-size:12px;color:#0f172a;font-weight:600;text-align:left;border-bottom:1px solid #e2e8f0">{{ .Email }}</td>
+            </tr>
+            <tr>
+              <td style="padding:14px 18px;font-size:12px;color:#64748b">⏰ תוקף</td>
+              <td style="padding:14px 18px;font-size:12px;color:#0f172a;font-weight:600;text-align:left">24 שעות</td>
+            </tr>
+          </table>
+
+          <div style="text-align:center">
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#1e3a8a;color:#fff;text-decoration:none;padding:15px 40px;border-radius:10px;font-size:15px;font-weight:700">בחר סיסמה והתחבר ←</a>
+          </div>
+        </td></tr>
+        <tr><td style="background:#1e3a8a;height:3px"></td></tr>
+        <tr><td style="padding:16px 36px;text-align:center">
+          <span style="font-size:11px;color:#94a3b8">לא ביקשת גישה? ניתן להתעלם מהודעה זו בבטחה.</span>
+        </td></tr>
+      </table>
+
+    </td></tr>
+  </table>
+</body>
+</html>`,
+
+5: `<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"></head>
+<body style="margin:0;padding:0;background:#fff;font-family:Arial,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td align="center" style="padding:40px 16px">
+      <table width="480" cellpadding="0" cellspacing="0">
+
+        <tr><td style="padding-bottom:32px;border-bottom:2px solid #0f172a">
+          <div style="font-size:28px">🚲 מחסן אופניים</div>
+          <div style="font-size:12px;color:#64748b;margin-top:4px">איחוד הצלה ישראל</div>
+        </td></tr>
+
+        <tr><td style="padding:36px 0;text-align:right">
+          <div style="font-size:18px;font-weight:700;color:#0f172a;margin-bottom:20px">הוזמנת למערכת</div>
+          <div style="font-size:14px;color:#475569;line-height:2;margin-bottom:32px">
+            שלום,<br><br>
+            קיבלת גישה למערכת ניהול מחסן האופניים של איחוד הצלה ישראל.<br>
+            לחץ על הקישור למטה לבחירת סיסמה:
+          </div>
+
+          <div style="background:#f1f5f9;border-right:4px solid #1e3a8a;padding:16px 20px;border-radius:0 8px 8px 0;margin-bottom:32px">
+            <a href="{{ .ConfirmationURL }}" style="color:#1e3a8a;font-size:13px;word-break:break-all">{{ .ConfirmationURL }}</a>
+          </div>
+
+          <div style="text-align:center">
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#0f172a;color:#fff;text-decoration:none;padding:14px 36px;border-radius:8px;font-size:14px;font-weight:700">הגדר סיסמה</a>
+          </div>
+        </td></tr>
+
+        <tr><td style="padding-top:24px;border-top:1px solid #e2e8f0;text-align:right">
+          <div style="font-size:11px;color:#94a3b8;line-height:1.8">
+            הקישור תקף ל-24 שעות.<br>
+            אם לא ביקשת גישה זו — התעלם מהודעה זו.
+          </div>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
+
+}
+
+// Load all iframes
+Object.keys(templates).forEach(k => {
+  document.getElementById('t' + k).srcdoc = templates[k]
+})
+
+// Auto-resize iframes
+document.querySelectorAll('iframe').forEach(iframe => {
+  iframe.addEventListener('load', () => {
+    try {
+      const h = iframe.contentDocument.body.scrollHeight
+      iframe.style.height = (h + 20) + 'px'
+    } catch(e) {}
+  })
+})
+
+function copyTemplate(n) {
+  const html = templates[n]
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(html).then(() => {
+      const btn = document.querySelectorAll('.copy-btn')[n - 1]
+      btn.textContent = '✓ הועתק!'
+      btn.style.background = '#22c55e'
+      setTimeout(() => { btn.textContent = 'העתק HTML'; btn.style.background = '#3b82f6' }, 2000)
+    })
+  }
+}
+</script>
+</body>
+</html>

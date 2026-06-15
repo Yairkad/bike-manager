@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>הדמיית אייקון — ניהול מלאי אופניים</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f172a; font-family: Arial, sans-serif; padding: 40px 20px; color: #f1f5f9; }
+    h2 { color: #94a3b8; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; text-align: center; }
+    .section { margin-bottom: 56px; }
+    .row { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; align-items: flex-end; }
+
+    /* ── App icon sizes ── */
+    .icon-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .icon-wrap span { color: #475569; font-size: 11px; }
+    .app-icon {
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      background: #fff;
+    }
+    .app-icon img { width: 100%; height: 100%; object-fit: contain; }
+
+    /* ── iOS rounded ── */
+    .ios { border-radius: 22.37%; }
+    /* ── Android circle ── */
+    .android { border-radius: 50%; }
+    /* ── Android adaptive (squircle) ── */
+    .squircle { border-radius: 30%; }
+    /* ── Square ── */
+    .square { border-radius: 0; }
+
+    /* ── Home screen mockup ── */
+    .phone {
+      width: 300px; height: 580px;
+      background: #1a1a2e;
+      border-radius: 42px;
+      border: 7px solid #2d2d44;
+      overflow: hidden;
+      box-shadow: 0 24px 72px rgba(0,0,0,0.7);
+      display: flex; flex-direction: column;
+      position: relative;
+    }
+    .wallpaper {
+      position: absolute; inset: 0;
+      background: linear-gradient(160deg, #0ea5e9 0%, #6366f1 50%, #8b5cf6 100%);
+    }
+    .status { position: relative; z-index: 1; height: 28px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; }
+    .status span { color: #fff; font-size: 11px; font-weight: 700; }
+    .home-grid { position: relative; z-index: 1; flex: 1; padding: 20px 16px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; align-content: start; }
+    .home-icon { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .home-icon-img { width: 56px; height: 56px; border-radius: 14px; overflow: hidden; background: #fff; }
+    .home-icon-img img { width: 100%; height: 100%; object-fit: contain; }
+    .home-icon-lbl { color: #fff; font-size: 10px; text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,0.6); line-height: 1.2; }
+    .home-icon-lbl.ours { font-weight: 800; }
+    .dock { position: absolute; bottom: 12px; left: 12px; right: 12px; height: 76px; background: rgba(255,255,255,0.15); backdrop-filter: blur(12px); border-radius: 22px; display: flex; align-items: center; justify-content: space-around; padding: 0 12px; z-index: 2; }
+
+    /* ── Notification ── */
+    .notif {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 16px;
+      padding: 12px 14px;
+      display: flex; align-items: center; gap: 10px;
+      width: 260px;
+    }
+    .notif-icon { width: 36px; height: 36px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #fff; }
+    .notif-icon img { width: 100%; height: 100%; object-fit: contain; }
+    .notif-text { flex: 1; text-align: right; }
+    .notif-app { color: rgba(255,255,255,0.6); font-size: 10px; }
+    .notif-msg { color: #fff; font-size: 12px; font-weight: 600; margin-top: 2px; }
+
+    /* ── Splash ── */
+    .splash {
+      width: 180px; height: 360px;
+      background: #f97316;
+      border-radius: 28px;
+      border: 5px solid #2d2d44;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+      overflow: hidden;
+    }
+    .splash img { width: 140px; height: 110px; object-fit: contain; }
+    .splash-txt { color: #fff; font-size: 13px; font-weight: 800; text-align: center; }
+    .splash-sub { color: rgba(255,255,255,0.65); font-size: 10px; }
+  </style>
+</head>
+<body>
+
+<!-- ── SECTION 1: גדלים ── -->
+<div class="section">
+  <h2>גדלי אייקון — iOS</h2>
+  <div class="row">
+    <div class="icon-wrap">
+      <div class="app-icon ios" style="width:180px;height:180px"><img src="LOGO.png"></div>
+      <span>180px — iPhone</span>
+    </div>
+    <div class="icon-wrap">
+      <div class="app-icon ios" style="width:120px;height:120px"><img src="LOGO.png"></div>
+      <span>120px</span>
+    </div>
+    <div class="icon-wrap">
+      <div class="app-icon ios" style="width:87px;height:87px"><img src="LOGO.png"></div>
+      <span>87px</span>
+    </div>
+    <div class="icon-wrap">
+      <div class="app-icon ios" style="width:60px;height:60px"><img src="LOGO.png"></div>
+      <span>60px</span>
+    </div>
+    <div class="icon-wrap">
+      <div class="app-icon ios" style="width:40px;height:40px"><img src="LOGO.png"></div>
+      <span>40px</span>
+    </div>
+    <div class="icon-wrap">
+      <div class="app-icon ios" style="width:29px;height:29px"><img src="LOGO.png"></div>
+      <span>29px</span>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>גדלי אייקון — Android</h2>
+  <div class="row">
+    <div class="icon-wrap">
+      <div class="app-icon squircle" style="width:180px;height:180px"><img src="LOGO.png"></div>
+      <span>Adaptive</span>
+    </div>
+    <div class="icon-wrap">
+      <div class="app-icon android" style="width:108px;height:108px"><img src="LOGO.png"></div>
+      <span>Circle</span>
+    </div>
+    <div class="icon-wrap">
+      <div class="app-icon square" style="width:108px;height:108px"><img src="LOGO.png"></div>
+      <span>Square</span>
+    </div>
+    <div class="icon-wrap">
+      <div class="app-icon squircle" style="width:64px;height:64px"><img src="LOGO.png"></div>
+      <span>48px</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── SECTION 2: מסך בית ── -->
+<div class="section">
+  <h2>מסך בית — כך יראה על הטלפון</h2>
+  <div class="row" style="align-items:flex-start">
+
+    <!-- iOS home -->
+    <div>
+      <div style="color:#64748b;font-size:11px;text-align:center;margin-bottom:10px">iOS</div>
+      <div class="phone">
+        <div class="wallpaper"></div>
+        <div class="status">
+          <span>9:41</span>
+          <span>●●● 100%</span>
+        </div>
+        <div class="home-grid">
+          <!-- placeholder icons -->
+          <div class="home-icon">
+            <div class="home-icon-img" style="background:#1c7ed6"><img src="data:image/svg+xml,<svg viewBox='0 0 1 1' xmlns='http://www.w3.org/2000/svg'/>"></div>
+            <div class="home-icon-lbl">טלפון</div>
+          </div>
+          <div class="home-icon">
+            <div class="home-icon-img" style="background:#2f9e44"></div>
+            <div class="home-icon-lbl">הודעות</div>
+          </div>
+          <div class="home-icon">
+            <div class="home-icon-img" style="background:#e03131"></div>
+            <div class="home-icon-lbl">מצלמה</div>
+          </div>
+          <div class="home-icon">
+            <div class="home-icon-img" style="background:#7048e8"></div>
+            <div class="home-icon-lbl">מוסיקה</div>
+          </div>
+          <!-- OUR APP -->
+          <div class="home-icon">
+            <div class="home-icon-img ios" style="width:56px;height:56px"><img src="LOGO.png"></div>
+            <div class="home-icon-lbl ours" style="color:#ffe0cc">מלאי<br>אופניים</div>
+          </div>
+          <div class="home-icon">
+            <div class="home-icon-img" style="background:#1971c2"></div>
+            <div class="home-icon-lbl">מפות</div>
+          </div>
+          <div class="home-icon">
+            <div class="home-icon-img" style="background:#f08c00"></div>
+            <div class="home-icon-lbl">שעון</div>
+          </div>
+          <div class="home-icon">
+            <div class="home-icon-img" style="background:#087f5b"></div>
+            <div class="home-icon-lbl">בריאות</div>
+          </div>
+        </div>
+        <div class="dock">
+          <div class="home-icon-img ios" style="width:52px;height:52px;background:#1c7ed6"></div>
+          <div class="home-icon-img ios" style="width:52px;height:52px;background:#2f9e44"></div>
+          <div class="home-icon-img ios" style="width:52px;height:52px"><img src="LOGO.png"></div>
+          <div class="home-icon-img ios" style="width:52px;height:52px;background:#7048e8"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Android home -->
+    <div>
+      <div style="color:#64748b;font-size:11px;text-align:center;margin-bottom:10px">Android</div>
+      <div class="phone">
+        <div class="wallpaper" style="background:linear-gradient(160deg,#1e3a8a,#0f172a)"></div>
+        <div class="status">
+          <span>9:41</span>
+          <span>▲ ● ■ 100%</span>
+        </div>
+        <div class="home-grid">
+          <div class="home-icon">
+            <div class="home-icon-img android" style="background:#1c7ed6"></div>
+            <div class="home-icon-lbl">טלפון</div>
+          </div>
+          <div class="home-icon">
+            <div class="home-icon-img android" style="background:#2f9e44"></div>
+            <div class="home-icon-lbl">הודעות</div>
+          </div>
+          <div class="home-icon">
+            <div class="home-icon-img android" style="background:#e03131"></div>
+            <div class="home-icon-lbl">מצלמה</div>
+          </div>
+          <div class="home-icon">
+            <div class="home-icon-img android" style="background:#7048e8"></div>
+            <div class="home-icon-lbl">מוסיקה</div>
+          </div>
+          <div class="home-icon">
+            <div class="home-icon-img squircle" style="width:56px;height:56px"><img src="LOGO.png"></div>
+            <div class="home-icon-lbl ours" style="color:#fed7aa">מלאי<br>אופניים</div>
+          </div>
+          <div class="home-icon">
+            <div class="home-icon-img android" style="background:#1971c2"></div>
+            <div class="home-icon-lbl">מפות</div>
+          </div>
+          <div class="home-icon">
+            <div class="home-icon-img android" style="background:#f08c00"></div>
+            <div class="home-icon-lbl">שעון</div>
+          </div>
+          <div class="home-icon">
+            <div class="home-icon-img android" style="background:#087f5b"></div>
+            <div class="home-icon-lbl">בריאות</div>
+          </div>
+        </div>
+        <div class="dock" style="background:rgba(255,255,255,0.08)">
+          <div class="home-icon-img android" style="width:52px;height:52px;background:#1c7ed6"></div>
+          <div class="home-icon-img android" style="width:52px;height:52px;background:#2f9e44"></div>
+          <div class="home-icon-img squircle" style="width:52px;height:52px"><img src="LOGO.png"></div>
+          <div class="home-icon-img android" style="width:52px;height:52px;background:#7048e8"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Splash + notif -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:28px">
+      <div>
+        <div style="color:#64748b;font-size:11px;text-align:center;margin-bottom:10px">Splash Screen</div>
+        <div class="splash">
+          <img src="LOGO.png">
+          <div>
+            <div class="splash-txt">ניהול מלאי אופניים</div>
+            <div class="splash-sub" style="text-align:center">איחוד הצלה ישראל</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="color:#64748b;font-size:11px;text-align:center;margin-bottom:10px">התראה</div>
+        <div class="notif">
+          <div class="notif-icon"><img src="LOGO.png"></div>
+          <div class="notif-text">
+            <div class="notif-app">ניהול מלאי אופניים</div>
+            <div class="notif-msg">השאלה #47 — מועד החזרה מחר</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

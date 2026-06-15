@@ -8,7 +8,6 @@ import type { RootStackParamList } from './src/lib/navigation'
 import { AuthProvider, useAuth } from './src/context/AuthContext'
 
 import LoginScreen from './src/screens/LoginScreen'
-import SetupViewerScreen from './src/screens/SetupViewerScreen'
 import Dashboard from './src/screens/Dashboard'
 import BikesScreen from './src/screens/BikesScreen'
 import InventoryScreen from './src/screens/InventoryScreen'
@@ -71,7 +70,6 @@ function RootNavigator() {
 
             {/* ── Detail / flow screens ── */}
             <Stack.Screen name="SettingsScreen"  component={SettingsScreen}  options={{ title: 'הגדרות' }} />
-            <Stack.Screen name="SetupViewer"     component={SetupViewerScreen} options={{ title: 'משתמש צפיה' }} />
             <Stack.Screen name="NewBike"         component={NewBike}         options={{ title: 'קליטת כלי חדש' }} />
             <Stack.Screen name="BikeDetail"      component={BikeDetail}      options={{ title: 'פרטי כלי' }} />
             <Stack.Screen name="EditBike"        component={EditBike}        options={{ title: 'עריכת כלי' }} />
