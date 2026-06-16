@@ -57,7 +57,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
 function Splash() {
   return (
     <View style={{ flex: 1, backgroundColor: '#f97316', alignItems: 'center', justifyContent: 'center' }}>
-      <Image source={require('./assets/logo-mark.png')} style={{ width: 220, height: 220 }} resizeMode="contain" />
+      <Image source={require('./assets/icon.png')} style={{ width: 200, height: 200, borderRadius: 24 }} resizeMode="contain" />
     </View>
   )
 }
