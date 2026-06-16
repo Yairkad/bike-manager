@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import {
   View, Text, ScrollView, TextInput, TouchableOpacity,
-  ActivityIndicator, RefreshControl,
+  ActivityIndicator, RefreshControl, Image,
 } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -199,6 +199,9 @@ function BikeRow({ bike, onPress }: { bike: Bike; onPress: () => void }) {
         <Text style={{ fontSize: 16, fontWeight: '800', color: '#0f172a' }}>#{bike.org_number}</Text>
         <Text style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{sub || 'ללא פרטים נוספים'}</Text>
       </View>
+      {bike.photo_url && (
+        <Image source={{ uri: bike.photo_url }} style={{ width: 40, height: 40, borderRadius: 8, marginLeft: 10 }} resizeMode="cover" />
+      )}
     </TouchableOpacity>
   )
 }

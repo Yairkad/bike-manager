@@ -43,6 +43,7 @@ export interface Bike {
   model?: string
   year?: number
   has_digital_display?: boolean
+  photo_url?: string
   category: BikeCategory
   status: BikeStatus
   created_at: string

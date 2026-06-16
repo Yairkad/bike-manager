@@ -1,3 +1,4 @@
+import { decode } from 'base64-arraybuffer'
 import { supabase } from './supabase'
 import type {
   Bike, ReturnEvent, FaultEvent, Sale, Loan,
@@ -37,6 +38,15 @@ export async function saveBike(bike: Bike): Promise<void> {
 
 export async function deleteBike(id: string): Promise<void> {
   row(await supabase.from('bikes').delete().eq('id', id))
+}
+
+export async function uploadBikePhoto(bikeId: string, base64: string): Promise<string> {
+  const path = `${bikeId}-${Date.now()}.jpg`
+  const { error } = await supabase.storage.from('bike-photos').upload(path, decode(base64), {
+    contentType: 'image/jpeg', upsert: true,
+  })
+  if (error) throw error
+  return supabase.storage.from('bike-photos').getPublicUrl(path).data.publicUrl
 }
 
 export async function orgNumberActiveExists(num: string, excludeId?: string): Promise<boolean> {

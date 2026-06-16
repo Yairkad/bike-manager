@@ -7,10 +7,11 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import type { RootStackParamList } from '../lib/navigation'
 import type { Bike, BikeCategory } from '../types'
 import { MANUFACTURERS } from '../types'
-import { saveBike, orgNumberActiveExists, getOutBikeByOrgNumber, saveReturnEvent, saveFaultEvent, saveCategoryChange } from '../lib/storage'
+import { saveBike, orgNumberActiveExists, getOutBikeByOrgNumber, saveReturnEvent, saveFaultEvent, saveCategoryChange, uploadBikePhoto } from '../lib/storage'
 import { defaultEquipment, defaultInspection, hasFault, type EquipmentState, type InspectionState } from '../lib/forms'
 import EquipmentForm from '../components/forms/EquipmentForm'
 import InspectionForm from '../components/forms/InspectionForm'
+import PhotoPicker from '../components/PhotoPicker'
 import { uid } from '../lib/utils'
 
 type Props = NativeStackScreenProps<RootStackParamList, 'NewBike'>
@@ -37,6 +38,7 @@ export default function NewBike({ navigation }: Props) {
   const [model, setModel] = useState('')
   const [year, setYear] = useState('')
   const [hasDigitalDisplay, setHasDigitalDisplay] = useState<boolean | undefined>(undefined)
+  const [photo, setPhoto] = useState<{ uri: string; base64: string } | null>(null)
   const [category, setCategory] = useState<BikeCategory>('new')
   const [orgError, setOrgError] = useState('')
   const [frameError, setFrameError] = useState('')
@@ -93,6 +95,8 @@ export default function NewBike({ navigation }: Props) {
       created_at: now, updated_at: now,
       repaired_at: faulted ? undefined : now,
     }
+
+    if (photo) bike.photo_url = await uploadBikePhoto(bikeId, photo.base64)
 
     await saveBike(bike)
     await saveCategoryChange({ id: uid(), bike_id: bikeId, changed_at: now, to_category: category })
@@ -158,6 +162,8 @@ export default function NewBike({ navigation }: Props) {
         {/* ── Step 1 ── */}
         {step === 1 && (
           <View style={{ gap: 12 }}>
+
+            <PhotoPicker uri={photo?.uri} onPick={setPhoto} />
 
             {/* Category toggle — at the top */}
             <View style={{ flexDirection: 'row', backgroundColor: '#f1f5f9', borderRadius: 14, padding: 4, gap: 2 }}>

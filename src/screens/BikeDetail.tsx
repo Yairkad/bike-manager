@@ -1,6 +1,8 @@
 import { useCallback, useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Modal } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Modal, Image } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native'
+import * as Print from 'expo-print'
+import Ionicons from '@expo/vector-icons/Ionicons'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import type { RootStackParamList } from '../lib/navigation'
 import type { Bike, ReturnEvent, FaultEvent, Sale, Loan, CategoryChange } from '../types'
@@ -113,12 +115,52 @@ export default function BikeDetail({ route, navigation }: Props) {
     ...loans.map(d => ({ type: 'loan' as const, date: d.loaned_at, data: d })),
   ].sort((a, b) => b.date.localeCompare(a.date))
 
+  const timelineLabel = (ev: TimelineEvent): string => {
+    if (ev.type === 'category') return `העברה: ${CATEGORY_LABELS[ev.data.from_category!]} ← ${CATEGORY_LABELS[ev.data.to_category]}`
+    if (ev.type === 'intake') return `קליטה — #${bike.org_number}`
+    if (ev.type === 'fault') return ev.data.resolved_at ? 'בדיקה (תוקנה)' : 'תקלה'
+    if (ev.type === 'sale') return `נמכר ל-${ev.data.buyer_name} · ₪${ev.data.price.toLocaleString()}`
+    return `השאלה ל-${ev.data.borrower_name} (${ev.data.returned_at ? 'הוחזר' : 'פעיל'})`
+  }
+
+  const handleExportPdf = async () => {
+    const info = [
+      bike.frame_number && `מספר שלדה: ${bike.frame_number}`,
+      bike.license_plate && `לוחית רישוי: ${bike.license_plate}`,
+      bike.has_digital_display !== undefined && `צג דיגיטלי: ${bike.has_digital_display ? 'יש' : 'אין'}`,
+    ].filter(Boolean).join('<br/>')
+
+    const rows = timeline.map(ev => `
+      <tr>
+        <td style="padding:6px 10px;font-size:12px;color:#6b7280;white-space:nowrap;">${formatDateTime(ev.date)}</td>
+        <td style="padding:6px 10px;font-size:13px;color:#374151;">${timelineLabel(ev)}</td>
+      </tr>`).join('')
+
+    const html = `
+      <html dir="rtl"><head><meta charset="utf-8"/></head>
+      <body style="font-family:Arial,Helvetica,sans-serif;padding:24px;">
+        <div style="text-align:center;border-bottom:2px solid #1e3a8a;padding-bottom:14px;margin-bottom:16px;">
+          <h1 style="color:#1e3a8a;margin:0;font-size:22px;">#${bike.org_number}</h1>
+          <div style="color:#6b7280;font-size:13px;margin-top:4px;">${[bike.manufacturer, bike.model, bike.year].filter(Boolean).join(' · ')}</div>
+        </div>
+        ${bike.photo_url ? `<div style="text-align:center;margin-bottom:16px;"><img src="${bike.photo_url}" style="max-width:280px;max-height:200px;border-radius:8px;"/></div>` : ''}
+        <div style="font-size:13px;color:#374151;margin-bottom:16px;">${info}</div>
+        <div style="font-size:13px;font-weight:bold;color:#1e3a8a;margin-bottom:8px;">${CATEGORY_LABELS[bike.category]} · ${bike.status === 'faulty' ? 'תקול' : 'תקין'}</div>
+        <table style="width:100%;border-collapse:collapse;">${rows}</table>
+      </body></html>`
+
+    await Print.printAsync({ html })
+  }
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#f8fafc' }} contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
 
       {/* Header card */}
       <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#f1f5f9' }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          {bike.photo_url && (
+            <Image source={{ uri: bike.photo_url }} style={{ width: 64, height: 64, borderRadius: 12, marginLeft: 12 }} resizeMode="cover" />
+          )}
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 26, fontWeight: '900', color: '#0f172a' }}>#{bike.org_number}</Text>
             {(bike.manufacturer || bike.model || bike.year) && (
@@ -128,11 +170,16 @@ export default function BikeDetail({ route, navigation }: Props) {
             )}
           </View>
           <View style={{ alignItems: 'flex-end', gap: 6 }}>
-            {isAdmin && (
-              <TouchableOpacity onPress={() => navigation.navigate('EditBike', { id })} style={{ padding: 6 }}>
-                <Text style={{ fontSize: 18, color: '#9ca3af' }}>⚙</Text>
+            <View style={{ flexDirection: 'row', gap: 4 }}>
+              <TouchableOpacity onPress={handleExportPdf} style={{ padding: 6 }}>
+                <Ionicons name="print-outline" size={20} color="#9ca3af" />
               </TouchableOpacity>
-            )}
+              {isAdmin && (
+                <TouchableOpacity onPress={() => navigation.navigate('EditBike', { id })} style={{ padding: 6 }}>
+                  <Ionicons name="settings-outline" size={20} color="#9ca3af" />
+                </TouchableOpacity>
+              )}
+            </View>
             <View style={{ backgroundColor: catColor.bg, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 99 }}>
               <Text style={{ fontSize: 11, fontWeight: '700', color: catColor.text }}>{CATEGORY_LABELS[bike.category]}</Text>
             </View>

@@ -3,7 +3,7 @@
     "name": "ניהול מלאי אופניים",
     "slug": "bikeup",
     "owner": "yairkadoshs-organization",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -17,10 +17,11 @@
     },
     "android": {
       "package": "com.ihud.bikemanager",
-      "versionCode": 4,
+      "versionCode": 5,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.png",
-        "backgroundColor": "#f97316"
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
       "softwareKeyboardLayoutMode": "pan"
@@ -33,6 +34,12 @@
         "projectId": "12545a74-5739-40b4-8b98-e2c03816d836"
       }
     },
+    "plugins": [
+      ["expo-image-picker", {
+        "photosPermission": "נדרשת גישה לתמונות כדי להוסיף תמונה לכלי",
+        "cameraPermission": "נדרשת גישה למצלמה כדי לצלם תמונה לכלי"
+      }]
+    ],
     "runtimeVersion": {
       "policy": "appVersion"
     },

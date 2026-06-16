@@ -5,7 +5,8 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import type { RootStackParamList } from '../lib/navigation'
 import type { Bike } from '../types'
 import { MANUFACTURERS } from '../types'
-import { getBikeById, saveBike, deleteBike, saveIdentityChange, orgNumberActiveExists } from '../lib/storage'
+import { getBikeById, saveBike, deleteBike, saveIdentityChange, orgNumberActiveExists, uploadBikePhoto } from '../lib/storage'
+import PhotoPicker from '../components/PhotoPicker'
 import { uid } from '../lib/utils'
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EditBike'>
@@ -21,6 +22,7 @@ export default function EditBike({ route, navigation }: Props) {
   const [model, setModel] = useState('')
   const [year, setYear] = useState('')
   const [hasDigitalDisplay, setHasDigitalDisplay] = useState<boolean | undefined>(undefined)
+  const [photo, setPhoto] = useState<{ uri: string; base64: string } | null>(null)
   const [orgError, setOrgError] = useState('')
   const [showDelete, setShowDelete] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -54,6 +56,7 @@ export default function EditBike({ route, navigation }: Props) {
     setSaving(true)
     const now = new Date().toISOString()
     const resolvedMfr = manufacturer === 'אחר' ? (manufacturerCustom.trim() || 'אחר') : (manufacturer || undefined)
+    const photoUrl = photo ? await uploadBikePhoto(bike.id, photo.base64) : bike.photo_url
 
     const fields: Array<{ field: 'org_number' | 'frame_number' | 'license_plate' | 'manufacturer'; oldV?: string; newV?: string }> = [
       { field: 'org_number', oldV: bike.org_number, newV: trimOrg },
@@ -73,6 +76,7 @@ export default function EditBike({ route, navigation }: Props) {
       model: model.trim() || undefined,
       year: year.trim() ? Number(year.trim()) : undefined,
       has_digital_display: hasDigitalDisplay,
+      photo_url: photoUrl,
       updated_at: now,
     })
     setSaving(false)
@@ -87,6 +91,8 @@ export default function EditBike({ route, navigation }: Props) {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#f8fafc' }} contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
       <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 16, gap: 14, marginBottom: 12, borderWidth: 1, borderColor: '#f1f5f9' }}>
+        <PhotoPicker uri={photo?.uri ?? bike.photo_url} onPick={setPhoto} />
+
         <Field label="מספר ארגוני *" value={orgNumber}
           onChangeText={t => { setOrgNumber(t); setOrgError('') }}
           error={orgError} keyboardType="numeric" />
