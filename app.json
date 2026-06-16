@@ -3,7 +3,7 @@
     "name": "ניהול מלאי אופניים",
     "slug": "bikeup",
     "owner": "yairkadoshs-organization",
-    "version": "1.0.5",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
