@@ -50,7 +50,7 @@ export default function SettingsScreen({ navigation }: Props) {
         </Text>
         <View style={{ backgroundColor: '#fff', borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: '#f1f5f9' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14 }}>
-            <Text style={{ fontSize: 11, color: '#94a3b8' }}>v1.0.5 — BIKE-native</Text>
+            <Text style={{ fontSize: 11, color: '#94a3b8' }}>v1.0.6 — BIKE-native</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <Text style={{ fontSize: 14, fontWeight: '700', color: '#0f172a' }}>גרסה</Text>
               <Ionicons name="information-circle-outline" size={18} color="#1e3a8a" />
