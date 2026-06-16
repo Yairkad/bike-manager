@@ -163,8 +163,7 @@ export default function NewBike({ navigation }: Props) {
         {step === 1 && (
           <View style={{ gap: 12 }}>
 
-            {/* DIAGNOSTIC: temporarily disabled to isolate a crash — TODO restore */}
-            {false && <PhotoPicker uri={photo?.uri} onPick={setPhoto} />}
+            <PhotoPicker uri={photo?.uri} onPick={setPhoto} />
 
             {/* Category toggle — at the top */}
             <View style={{ flexDirection: 'row', backgroundColor: '#f1f5f9', borderRadius: 14, padding: 4, gap: 2 }}>
