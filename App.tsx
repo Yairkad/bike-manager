@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import type { RootStackParamList } from './src/lib/navigation'
 import { AuthProvider, useAuth } from './src/context/AuthContext'
+import UpdateBanner from './src/components/UpdateBanner'
 
 import LoginScreen from './src/screens/LoginScreen'
 import Dashboard from './src/screens/Dashboard'
@@ -116,6 +117,7 @@ function RootNavigator() {
 export default function App() {
   return (
     <SafeAreaProvider>
+      <UpdateBanner />
       <ErrorBoundary>
         <AuthProvider>
           <RootNavigator />
