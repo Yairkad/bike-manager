@@ -73,8 +73,8 @@ export default function Dashboard({ navigation }: Props) {
                 {profile ? getInitials(profile.name) : '?'}
               </Text>
             </TouchableOpacity>
-            <View style={{ alignItems: 'flex-end' }}>
-              <Text style={{ color: '#fff', fontSize: 20, fontWeight: '800' }}>🚲 מחסן אופניים</Text>
+            <View style={{ flex: 1, alignItems: 'center' }}>
+              <Text style={{ color: '#fff', fontSize: 20, fontWeight: '800' }}>ניהול מרלו"ג</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 }}>
                 {!isAdmin && (
                   <View style={{ backgroundColor: 'rgba(255,255,255,0.18)', paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6 }}>
@@ -84,6 +84,7 @@ export default function Dashboard({ navigation }: Props) {
                 <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11 }}>איחוד הצלה ישראל</Text>
               </View>
             </View>
+            <View style={{ width: 38 }} />
           </View>
         </View>
 

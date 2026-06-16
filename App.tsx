@@ -1,4 +1,5 @@
-import { View, Text } from 'react-native'
+import { Component, type ReactNode } from 'react'
+import { View, Image, Text, ScrollView } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { I18nManager } from 'react-native'
@@ -33,10 +34,30 @@ if (typeof document !== 'undefined') {
 
 const Stack = createNativeStackNavigator<RootStackParamList>()
 
+class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null as Error | null }
+  static getDerivedStateFromError(error: Error) { return { error } }
+  render() {
+    if (this.state.error) {
+      return (
+        <View style={{ flex: 1, backgroundColor: '#fff', paddingTop: 60, paddingHorizontal: 20 }}>
+          <Text style={{ fontSize: 17, fontWeight: '800', color: '#dc2626', marginBottom: 12, textAlign: 'right' }}>קרתה שגיאה באפליקציה</Text>
+          <ScrollView>
+            <Text selectable style={{ fontSize: 12, color: '#374151', textAlign: 'left' }}>
+              {this.state.error.message}{'\n\n'}{this.state.error.stack}
+            </Text>
+          </ScrollView>
+        </View>
+      )
+    }
+    return this.props.children
+  }
+}
+
 function Splash() {
   return (
-    <View style={{ flex: 1, backgroundColor: '#f8fafc', alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ fontSize: 64 }}>🚲</Text>
+    <View style={{ flex: 1, backgroundColor: '#f97316', alignItems: 'center', justifyContent: 'center' }}>
+      <Image source={require('./assets/logo-mark.png')} style={{ width: 220, height: 220 }} resizeMode="contain" />
     </View>
   )
 }
@@ -95,9 +116,11 @@ function RootNavigator() {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <RootNavigator />
-      </AuthProvider>
+      <ErrorBoundary>
+        <AuthProvider>
+          <RootNavigator />
+        </AuthProvider>
+      </ErrorBoundary>
     </SafeAreaProvider>
   )
 }

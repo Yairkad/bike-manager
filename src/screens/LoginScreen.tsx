@@ -93,7 +93,7 @@ export default function LoginScreen() {
         <Text style={[S.title, { textAlign: 'center', marginTop: 20, marginBottom: 8 }]}>אמת זהות</Text>
         <Text style={[S.sub, { textAlign: 'center' }]}>השתמש בטביעת אצבע או זיהוי פנים</Text>
         <TouchableOpacity onPress={triggerBiometric} activeOpacity={0.85}
-          style={[S.btn, { backgroundColor: '#ea580c', marginTop: 32 }]}>
+          style={[S.btn, { backgroundColor: '#ea580c', width: '100%', marginTop: 32, shadowColor: '#ea580c', shadowOpacity: 0.35, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 6 }]}>
           <Text style={[S.btnTxt, { color: '#fff' }]}>נסה שוב</Text>
         </TouchableOpacity>
       </View>

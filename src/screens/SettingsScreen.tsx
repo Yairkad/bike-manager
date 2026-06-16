@@ -1,4 +1,5 @@
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native'
+import Ionicons from '@expo/vector-icons/Ionicons'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import type { RootStackParamList } from '../lib/navigation'
 import { useAuth } from '../context/AuthContext'
@@ -20,15 +21,23 @@ export default function SettingsScreen({ navigation }: Props) {
           <View style={{ backgroundColor: '#fff', borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: '#f1f5f9' }}>
             <TouchableOpacity
               onPress={biometricEnabled ? disableBiometric : enableBiometric}
-              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 16 }}>
-              <View style={{ backgroundColor: biometricEnabled ? '#dcfce7' : '#f1f5f9', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: biometricEnabled ? '#15803d' : '#64748b' }}>
-                  {biometricEnabled ? 'פעיל' : 'כבוי'}
-                </Text>
+              style={{ paddingHorizontal: 16, paddingVertical: 16 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <View style={{ backgroundColor: biometricEnabled ? '#dcfce7' : '#f1f5f9', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: biometricEnabled ? '#15803d' : '#64748b' }}>
+                    {biometricEnabled ? 'פעיל' : 'כבוי'}
+                  </Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: '#0f172a' }}>כניסה ביומטרית</Text>
+                  <Ionicons name="finger-print-outline" size={18} color="#1e3a8a" />
+                </View>
               </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#0f172a' }}>כניסה ביומטרית 👆</Text>
-              </View>
+              <Text style={{ fontSize: 11, color: '#94a3b8', textAlign: 'right', marginTop: 6 }}>
+                {biometricEnabled
+                  ? 'הכניסה תתבצע עם טביעת אצבע או זיהוי פנים, ללא צורך בהקלדת סיסמה'
+                  : 'כבוי — הכניסה תתבצע עם אימייל וסיסמה בלבד, לא יידרש זיהוי ביומטרי'}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -41,10 +50,10 @@ export default function SettingsScreen({ navigation }: Props) {
         </Text>
         <View style={{ backgroundColor: '#fff', borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: '#f1f5f9' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14 }}>
-            <Text style={{ fontSize: 11, color: '#94a3b8' }}>v1.0.3 — BIKE-native</Text>
+            <Text style={{ fontSize: 11, color: '#94a3b8' }}>v1.0.5 — BIKE-native</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <Text style={{ fontSize: 14, fontWeight: '700', color: '#0f172a' }}>גרסה</Text>
-              <Text style={{ fontSize: 18 }}>ℹ️</Text>
+              <Ionicons name="information-circle-outline" size={18} color="#1e3a8a" />
             </View>
           </View>
         </View>
